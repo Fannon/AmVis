@@ -13,6 +13,7 @@ var cw = canvas.width;
 var ch = canvas.height;
 var pixelCount = cw*ch;
 
+
 var localMediaStream = null;
 var options = {video:true, audio:false}; // (Video only)
 
@@ -21,10 +22,11 @@ var options = {video:true, audio:false}; // (Video only)
 /////////////////////////
 
 // TODO: Evtl. durch Controller setzen lassen
-var interval = 250; // in ms
+var interval = 2000; // in ms
 var analogAngle = 20; // Colorcircle Rotation in Grad for calculating analog palette
 var maxBrightness = 100;
 var minBrightness = 20;
+var colorRingBuffer = [[0,0,0], [0,0,0], [0,0,0], [0,0,0]]; // Fade in with Black Screen
 
 /////////////////////////
 // Get Webcam Stream   //
@@ -93,11 +95,12 @@ setInterval(function(){
 function calculateColors(pixels, pixelCount) {
 
     var colorObject = {};
-
     var pixelArray = [];
+    var dominantColor;
+
     for (var i = 0; i < pixelCount; i++) {
 
-        // Just take Pixels that are not too bright or to dark
+        // Just take Pixels that are not too bright or too dark
         if(!(pixels[i*4] > maxBrightness && pixels[i*4+1] > maxBrightness && pixels[i*4+2] > maxBrightness) && pixels[i*4] > minBrightness && pixels[i*4+1] > minBrightness && pixels[i*4+2] > minBrightness){
             pixelArray.push( [pixels[i*4], pixels[i*4+1], pixels[i*4+2]]);
         }
@@ -118,7 +121,7 @@ function calculateColors(pixels, pixelCount) {
     // Using a "Diff Score" to guess which Color is most interesting
     // Also this takes care of too greyish colors that produce a very boring analogue palette
 
-    colorObject['dominant'] = palette[0];
+    dominantColor = palette[0];
 
     for (var j = 0; j < palette.length; j++) {
         var diff = 0;
@@ -127,19 +130,46 @@ function calculateColors(pixels, pixelCount) {
         diff += Math.abs(palette[j][1] - palette[j][2]);
 
         if (diff > 100) {
-            colorObject['dominant'] = palette[j];
+            dominantColor = palette[j];
             break;
         }
 
         // console.log('DIFF Score: ' + diff + ' bei #' + (j+1));
     }
 
+    colorObject['dominant'] = dominantColor;
+
+    ////////////////////////////////
+    // Calculate Dominant Average //
+    ////////////////////////////////
+
+    // TODO: Durch anständigen Ringbuffer ersetzen
+    colorRingBuffer[3] = colorRingBuffer[2];
+    colorRingBuffer[2] = colorRingBuffer[1];
+    colorRingBuffer[1] = colorRingBuffer[0];
+    colorRingBuffer[0] = dominantColor;
+
+    var r = 0;
+    var g = 0;
+    var b = 0;
+    for (i = 0; i < colorRingBuffer.length; i++) {
+        console.log(colorRingBuffer[i]);
+        r += colorRingBuffer[i][0];
+        g += colorRingBuffer[i][1];
+        b += colorRingBuffer[i][2];
+    }
+    avg = [Math.round(r/colorRingBuffer.length), Math.round(g/colorRingBuffer.length), Math.round(b/colorRingBuffer.length)];
+
+    console.log('AVG: ' + avg);
+
+    colorObject['dominant_avg'] = avg;
+
 
     ////////////////////////////////
     // Calculate Analog Palette   //
     ////////////////////////////////
-    //
-    var dominantColor = Color().rgb(colorObject['dominant']);
+
+    dominantColor = Color().rgb(colorObject['dominant']);
 
     var analog = [
         // Starting with the Dominant Color minus two Rotations
@@ -175,6 +205,8 @@ function showColors(colorObject) {
 
     html += '<div style="background-color: rgba(' + colorObject.dominant[0] + ',' + colorObject.dominant[1] + ',' +colorObject.dominant[2] + ', 1.0)">DOMINANT</div><br>';
 
+    html += '<div style="background-color: rgba(' + colorObject.dominant_avg[0] + ',' + colorObject.dominant_avg[1] + ',' +colorObject.dominant_avg[2] + ', 1.0)">DOMINANT AVERAGE</div><br>';
+
 
     for (var i = 0; i < colorObject.palette.length; i++) {
         html += '<div style="background-color: rgba(' + colorObject.palette[i][0] + ',' + colorObject.palette[i][1] + ',' +colorObject.palette[i][2] + ', 1.0)">PALETTE</div>';
@@ -193,3 +225,37 @@ function showColors(colorObject) {
     $('#colors').html(html);
 
 }
+
+/**
+ * RingBuffer um Dominant Color zu "stabilisieren"
+ * Code zum Teil von: http://stackoverflow.com/a/4774081/776425
+ *
+ * @param  {[type]} length [description]
+ * @return {[type]}        [description]
+ */
+function CircularBuffer(length) {
+    this.totalLength = length;
+    this.buffer = [];
+    this.pointer = 0;
+}
+CircularBuffer.prototype.toString= function() {
+    return '[object CircularBuffer('+this.buffer.length+') pointer ' +this.pointer + ']';
+};
+CircularBuffer.prototype.get= function(key) {
+    return this.buffer[key];
+};
+CircularBuffer.prototype.push = function(item) {
+    this.buffer[this.pointer] = item;
+    pointer = (this.totalLength + this.pointer +1) % this.totalLength;
+};
+CircularBuffer.prototype.getAvg = function(){
+    var r = 0;
+    var g = 0;
+    var b = 0;
+    for (var i = 0; i < this.buffer.length; i++) {
+        r += this.buffer[i][0];
+        g += this.buffer[i][1];
+        b += this.buffer[i][2];
+    }
+    return [Math.round(r/this.buffer.length), Math.round(g/this.buffer.length), Math.round(b/this.buffer.length)];
+};
