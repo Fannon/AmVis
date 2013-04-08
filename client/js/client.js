@@ -15,6 +15,7 @@ var pixelCount = cw*ch;
 
 var localMediaStream = null;
 var options = {video:true, audio:false}; // (Video only)
+var analogueAngle = 30; // Colorcircle Rotation in Grad for calculating analougue palette
 
 /////////////////////////
 // Get Webcam Stream   //
@@ -96,9 +97,23 @@ function calculateColors(pixels, pixelCount) {
     colorObject['dominant'] = {"r": palette[0][0], "g": palette[0][1], "b": palette[0][2]};
     colorObject['palette'] = palette;
 
+    var dominantColor = Color(colorObject['dominant']);
+
+    // Calculation analougue palette
+    var analogue = [
+        dominantColor.rotate(- 2 * analogueAngle).rgb() ,
+        dominantColor.rotate(- analogueAngle).rgb() ,
+        dominantColor.rgb() ,
+        dominantColor.rotate(analogueAngle).rgb() ,
+        dominantColor.rotate(2 * analogueAngle).rgb()
+    ];
+
+    colorObject['analogue'] = analogue;
+
     return colorObject;
 
 }
+
 
 
 // Start / Change Module
