@@ -7,14 +7,15 @@
 </head>
 <body>
 
-<div id="container">
-    <video autoplay="true" id="videoElement">
+<video autoplay id="vid" width="320" height="240" style="display:block;"></video><br>
 
-    </video>
-</div>
+<canvas id="canvas" width="320" height="240" style="border:1px solid #d3d3d3;"></canvas><br>
+
+<button onclick="calculate()">Calculate Color Informations</button>
 
 </body>
 
 <script src="lib/jquery-1.9.1.min.js"></script>
+<script src="lib/quantize.js"></script>
 <script src="js/client.js"></script>
 </html>
