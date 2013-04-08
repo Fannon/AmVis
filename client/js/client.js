@@ -21,7 +21,10 @@ var options = {video:true, audio:false}; // (Video only)
 /////////////////////////
 
 // TODO: Evtl. durch Controller setzen lassen
+var interval = 250; // in ms
 var analogAngle = 20; // Colorcircle Rotation in Grad for calculating analog palette
+var maxBrightness = 100;
+var minBrightness = 20;
 
 /////////////////////////
 // Get Webcam Stream   //
@@ -62,14 +65,16 @@ var calculate = function() {
 
         var colorObject = calculateColors(pixels, pixelCount);
 
-        console.dir(colorObject);
         showColors(colorObject);
 
     } else {
         cameraFail('No localMediaStream');
     }
 };
-setInterval(function(){calculate();},125); // For Fast Realtime-Preview
+
+setInterval(function(){
+    calculate();
+}, interval); // For Fast Realtime-Preview
 
 ///////////////////////
 // Helper Functions ///
@@ -91,23 +96,50 @@ function calculateColors(pixels, pixelCount) {
 
     var pixelArray = [];
     for (var i = 0; i < pixelCount; i++) {
-        // If pixel is mostly opaque and not white
-        if(pixels[i*4+3] >= 125){
-            if(!(pixels[i*4] > 250 && pixels[i*4+1] > 250 && pixels[i*4+2] > 250)){
-                pixelArray.push( [pixels[i*4], pixels[i*4+1], pixels[i*4+2]]);
-            }
+
+        // Just take Pixels that are not too bright or to dark
+        if(!(pixels[i*4] > maxBrightness && pixels[i*4+1] > maxBrightness && pixels[i*4+2] > maxBrightness) && pixels[i*4] > minBrightness && pixels[i*4+1] > minBrightness && pixels[i*4+2] > minBrightness){
+            pixelArray.push( [pixels[i*4], pixels[i*4+1], pixels[i*4+2]]);
         }
+
     }
 
     // Send array to quantize function which clusters values using median cut algorithm
     var cmap = MMCQ.quantize(pixelArray, 5);
     var palette = cmap.palette();
 
-    colorObject['dominant'] = palette[0];
     colorObject['palette'] = palette;
 
-    // Calculate analog palette
-    var dominantColor = Color().rgb(palette[0]);
+
+    ////////////////////////////////
+    // Calculate Dominant Color   //
+    ////////////////////////////////
+
+    // Using a "Diff Score" to guess which Color is most interesting
+    // Also this takes care of too greyish colors that produce a very boring analogue palette
+
+    colorObject['dominant'] = palette[0];
+
+    for (var j = 0; j < palette.length; j++) {
+        var diff = 0;
+        diff += Math.abs(palette[j][0] - palette[j][1]);
+        diff += Math.abs(palette[j][0] - palette[j][2]);
+        diff += Math.abs(palette[j][1] - palette[j][2]);
+
+        if (diff > 100) {
+            colorObject['dominant'] = palette[j];
+            break;
+        }
+
+        // console.log('DIFF Score: ' + diff + ' bei #' + (j+1));
+    }
+
+
+    ////////////////////////////////
+    // Calculate Analog Palette   //
+    ////////////////////////////////
+    //
+    var dominantColor = Color().rgb(colorObject['dominant']);
 
     var analog = [
         // Starting with the Dominant Color minus two Rotations
@@ -120,10 +152,13 @@ function calculateColors(pixels, pixelCount) {
 
     colorObject['analog'] = analog;
 
-    // Calculation Negative
-    dominantColor = Color().rgb(palette[0]);
-    colorObject['negate'] = dominantColor.negate().rgbArray();
 
+    ////////////////////////////////
+    // Calculate Complement Color //
+    ////////////////////////////////
+
+    dominantColor = Color().rgb(colorObject['dominant']);
+    colorObject['negate'] = dominantColor.negate().rgbArray();
 
     return colorObject;
 
@@ -140,7 +175,6 @@ function showColors(colorObject) {
 
     html += '<div style="background-color: rgba(' + colorObject.dominant[0] + ',' + colorObject.dominant[1] + ',' +colorObject.dominant[2] + ', 1.0)">DOMINANT</div><br>';
 
-    html += '<div style="background-color: rgba(' + colorObject.negate[0] + ',' + colorObject.negate[1] + ',' +colorObject.negate[2] + ', 1.0)">NEGATE</div><br>';
 
     for (var i = 0; i < colorObject.palette.length; i++) {
         html += '<div style="background-color: rgba(' + colorObject.palette[i][0] + ',' + colorObject.palette[i][1] + ',' +colorObject.palette[i][2] + ', 1.0)">PALETTE</div>';
@@ -151,6 +185,8 @@ function showColors(colorObject) {
     for (var j = 0; j < colorObject.analog.length; j++) {
         html += '<div style="background-color: rgba(' + colorObject.analog[j][0] + ',' + colorObject.analog[j][1] + ',' +colorObject.analog[j][2] + ', 1.0)">ANALOG</div>';
     }
+
+    html += '<br><div style="background-color: rgba(' + colorObject.negate[0] + ',' + colorObject.negate[1] + ',' +colorObject.negate[2] + ', 1.0)">COMPLEMENT</div>';
 
     html += '</div>';
 
