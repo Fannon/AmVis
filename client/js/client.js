@@ -15,7 +15,13 @@ var pixelCount = cw*ch;
 
 var localMediaStream = null;
 var options = {video:true, audio:false}; // (Video only)
-var analogueAngle = 30; // Colorcircle Rotation in Grad for calculating analougue palette
+
+/////////////////////////
+// Parse Settings      //
+/////////////////////////
+
+// TODO: Evtl. durch Controller setzen lassen
+var analogAngle = 15; // Colorcircle Rotation in Grad for calculating analog palette
 
 /////////////////////////
 // Get Webcam Stream   //
@@ -30,6 +36,8 @@ navigator.getUserMedia(options, function (stream) {
     video.src = window.URL.createObjectURL(stream);
     localMediaStream = stream;
 }, cameraFail);
+
+
 
 
 /////////////////////////
@@ -55,7 +63,9 @@ var calculate = function() {
         var pixels = ctx.getImageData(0, 0, cw, ch).data;
 
         var colorObject = calculateColors(pixels, pixelCount);
+
         console.dir(colorObject);
+        showColors(colorObject);
 
     } else {
         cameraFail('No localMediaStream');
@@ -94,29 +104,57 @@ function calculateColors(pixels, pixelCount) {
     var cmap = MMCQ.quantize(pixelArray, 5);
     var palette = cmap.palette();
 
-    colorObject['dominant'] = {"r": palette[0][0], "g": palette[0][1], "b": palette[0][2]};
+    colorObject['dominant'] = palette[0];
     colorObject['palette'] = palette;
 
-    var dominantColor = Color(colorObject['dominant']);
+    // Calculate analog palette
+    var dominantColor = Color().rgb(palette[0]);
 
-    // Calculation analougue palette
-    var analogue = [
-        dominantColor.rotate(- 2 * analogueAngle).rgb() ,
-        dominantColor.rotate(- analogueAngle).rgb() ,
-        dominantColor.rgb() ,
-        dominantColor.rotate(analogueAngle).rgb() ,
-        dominantColor.rotate(2 * analogueAngle).rgb()
+    var analog = [
+        dominantColor.rotate(-2 * analogAngle).rgbArray(),
+        dominantColor.rotate(analogAngle).rgbArray(),
+        dominantColor.rotate(analogAngle).rgbArray(),
+        dominantColor.rotate(analogAngle).rgbArray(),
+        dominantColor.rotate(analogAngle).rgbArray()
     ];
 
-    colorObject['analogue'] = analogue;
+    colorObject['analog'] = analog;
 
     return colorObject;
 
 }
 
 
+function showColors(colorObject) {
+
+    var html = '<div id="colordebug">';
+
+    html += '<div style="background-color: rgba(' + colorObject.dominant[0] + ',' + colorObject.dominant[1] + ',' +colorObject.dominant[2] + ', 1.0)">DOMINANT</div><br>';
+
+    var thediv = document.createElement('div');
+        thediv.className = 'othercolors';
+        thediv.setAttribute('style', " !important;");
+
+    for (var i = 0; i < colorObject.palette.length; i++) {
+        html += '<div style="background-color: rgba(' + colorObject.palette[i][0] + ',' + colorObject.palette[i][1] + ',' +colorObject.palette[i][2] + ', 1.0)">PALETTE</div>';
+        // html += '<h3 style="color: ' + Color(colorObject.palette[i]).hexString() + ';">Paletten Farbe</h4>';
+    }
+
+    html += '<br>';
+
+    for (var j = 0; j < colorObject.analog.length; j++) {
+        html += '<div style="background-color: rgba(' + colorObject.analog[j][0] + ',' + colorObject.analog[j][1] + ',' +colorObject.analog[j][2] + ', 1.0)">ANALOG</div>';
+        // html += '<h3 style="color: ' + Color(colorObject.analog[j]).hexString() + ';">Analoge Farbe</h4>';
+    }
+
+    html += '</div>';
+
+    $('#colors').html(html);
+
+}
+
 
 // Start / Change Module
 
-// Read Options, execute Options
+
 
