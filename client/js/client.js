@@ -21,7 +21,7 @@ var options = {video:true, audio:false}; // (Video only)
 /////////////////////////
 
 // TODO: Evtl. durch Controller setzen lassen
-var analogAngle = 15; // Colorcircle Rotation in Grad for calculating analog palette
+var analogAngle = 20; // Colorcircle Rotation in Grad for calculating analog palette
 
 /////////////////////////
 // Get Webcam Stream   //
@@ -36,8 +36,6 @@ navigator.getUserMedia(options, function (stream) {
     video.src = window.URL.createObjectURL(stream);
     localMediaStream = stream;
 }, cameraFail);
-
-
 
 
 /////////////////////////
@@ -71,6 +69,7 @@ var calculate = function() {
         cameraFail('No localMediaStream');
     }
 };
+setInterval(function(){calculate();},125); // For Fast Realtime-Preview
 
 ///////////////////////
 // Helper Functions ///
@@ -111,6 +110,7 @@ function calculateColors(pixels, pixelCount) {
     var dominantColor = Color().rgb(palette[0]);
 
     var analog = [
+        // Starting with the Dominant Color minus two Rotations
         dominantColor.rotate(-2 * analogAngle).rgbArray(),
         dominantColor.rotate(analogAngle).rgbArray(),
         dominantColor.rotate(analogAngle).rgbArray(),
@@ -120,31 +120,36 @@ function calculateColors(pixels, pixelCount) {
 
     colorObject['analog'] = analog;
 
+    // Calculation Negative
+    dominantColor = Color().rgb(palette[0]);
+    colorObject['negate'] = dominantColor.negate().rgbArray();
+
+
     return colorObject;
 
 }
 
-
+/**
+ * Debugging Funktion die das berechnete ColorObject mit farbigen DIVs visuell darstellt
+ *
+ * @param  {object} colorObject
+ */
 function showColors(colorObject) {
 
     var html = '<div id="colordebug">';
 
     html += '<div style="background-color: rgba(' + colorObject.dominant[0] + ',' + colorObject.dominant[1] + ',' +colorObject.dominant[2] + ', 1.0)">DOMINANT</div><br>';
 
-    var thediv = document.createElement('div');
-        thediv.className = 'othercolors';
-        thediv.setAttribute('style', " !important;");
+    html += '<div style="background-color: rgba(' + colorObject.negate[0] + ',' + colorObject.negate[1] + ',' +colorObject.negate[2] + ', 1.0)">NEGATE</div><br>';
 
     for (var i = 0; i < colorObject.palette.length; i++) {
         html += '<div style="background-color: rgba(' + colorObject.palette[i][0] + ',' + colorObject.palette[i][1] + ',' +colorObject.palette[i][2] + ', 1.0)">PALETTE</div>';
-        // html += '<h3 style="color: ' + Color(colorObject.palette[i]).hexString() + ';">Paletten Farbe</h4>';
     }
 
     html += '<br>';
 
     for (var j = 0; j < colorObject.analog.length; j++) {
         html += '<div style="background-color: rgba(' + colorObject.analog[j][0] + ',' + colorObject.analog[j][1] + ',' +colorObject.analog[j][2] + ', 1.0)">ANALOG</div>';
-        // html += '<h3 style="color: ' + Color(colorObject.analog[j]).hexString() + ';">Analoge Farbe</h4>';
     }
 
     html += '</div>';
@@ -152,9 +157,3 @@ function showColors(colorObject) {
     $('#colors').html(html);
 
 }
-
-
-// Start / Change Module
-
-
-
