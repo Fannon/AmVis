@@ -37,6 +37,7 @@ var socket = io.connect(settings.serverUrl);
 socket.on('sucessfull_connected', function () {
     console.log('SUCCESSFUL CONNECTION');
     socket.emit('upload_settings', settings);
+    console.log('SENDING DEFAULT SETTINGS...');
 });
 
 // On "New Settings" Command from Remote Server: Overwrite own Settings with new ones

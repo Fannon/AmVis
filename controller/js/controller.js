@@ -10,6 +10,7 @@
 /////////////////////////
 var controller = {};
 var socket = io.connect(settings.serverUrl);
+controller.tryAgainInterval = settings.tryAgainInterval;
 controller.settings = {}; // Discard Settings
 controller.connected = false;
 controller.ready = false;
@@ -54,8 +55,8 @@ socket.on('current_settings', function (data) {
         console.log('NEW SETTINGS RECEIVED');
         controller.ready = true;
     } else {
-        console.log('NO SETTINGS ON SERVER! TRYING AGAIN.');
-        setTimeout(function(){socket.emit('get_settings');}, 3000);
+        console.log('NO SETTINGS ON SERVER! TRYING AGAIN IN ' + controller.tryAgainInterval + ' MS');
+        setTimeout(function(){socket.emit('get_settings');}, controller.tryAgainInterval);
     }
 
     console.dir(data);
