@@ -4,6 +4,9 @@
  * Uses Webcam to analyse current Colors of the envirionment
  * and generates matching WebGL Visualisations
  *
+ * Uses https://github.com/brehaut/color-js for Color Management
+ *
+ *
  * @author Simon Heimler
  * @author Sebastian Huber
  */
@@ -28,8 +31,20 @@ var colorRingBuffer = settings.defaultColorArray;
 // Receive Controlling //
 /////////////////////////
 
-// TODO: Receive Instructions from Controller App
+var socket = io.connect(settings.serverUrl);
 
+// On successfull Connection with Remote Server: Upload current (default) Settings
+socket.on('sucessfull_connected', function () {
+    console.log('SUCCESSFUL CONNECTION');
+    socket.emit('upload_settings', settings);
+});
+
+// On "New Settings" Command from Remote Server: Overwrite own Settings with new ones
+socket.on('new_settings', function (data) {
+    console.log('NEW SETTINGS RECEIVED');
+    console.dir(data);
+    settings = data;
+});
 
 /////////////////////////
 // Start this app      //
@@ -37,9 +52,10 @@ var colorRingBuffer = settings.defaultColorArray;
 
 jQuery(document).ready(function() {
 
+    // Get Webcam Stream starting
     enableWebcamStream(video);
 
-    // TODO: Make this controllable
+    // Start default program
     programs.colorpalette();
 
 });

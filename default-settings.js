@@ -1,6 +1,10 @@
 var settings = {};
 
-// Basic Settings
+// Main Settings
+settings.set               = true;
+settings.serverUrl         = 'http://localhost:8080';
+
+// Visual Settings
 settings.interval          = 1000;  // in ms
 settings.analogAngle       = 20;    // Rotation Degree for calculating analog palette
 settings.maxBrightness     = 100;   // 0 to 255

@@ -34,12 +34,8 @@ programs.colorpalette = function() {
  */
 function debugColors(colorObject) {
 
-    console.dir(colorObject);
 
     var html = '<div id="colordebug">';
-
-    var dominantColor = colorObject.dominant.toCSS();
-    console.dir(dominantColor);
 
     html += '<div style="background-color: ' + colorObject.dominant.toCSS() + '">DOMINANT</div><br>';
 
