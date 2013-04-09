@@ -19,7 +19,7 @@ io.sockets.on('connection', function(socket) {
         console.log('SENDING SETTINGS BY PUSH');
         socket.broadcast.emit('new_settings', data);
 
-        socket.emit('msg', {success: 'Settings Sucessfully Uploaded'});
+        socket.emit('msg', 'Settings Sucessfully Uploaded');
 
     });
 

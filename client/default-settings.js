@@ -2,7 +2,7 @@ var settings = {};
 
 // Main Settings
 settings.set               = true;
-settings.serverUrl         = 'http://localhost:8080';
+settings.serverUrl         = 'http://ec2-54-228-30-155.eu-west-1.compute.amazonaws.com:8888';
 
 // Visual Settings
 settings.interval          = 250;  // in ms
