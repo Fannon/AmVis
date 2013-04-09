@@ -5,6 +5,7 @@
     <title>HTML5 Ambient Visualizer Controller</title>
     <link rel="stylesheet" href="lib/visualizer-controller.min.css" />
     <link rel="stylesheet" href="lib/jquery.mobile.structure-1.3.0.min.css" />
+    <link rel="stylesheet" href="css/controller.css" />
 </head>
 <body>
     <!-- Home -->
@@ -17,42 +18,55 @@
         <div data-role="content">
 
             <div data-role="fieldcontain">
-                <fieldset data-role="controlgroup" data-mini="true">
-                    <label for="slider-saturation">
-                        Saturation
-                    </label>
-                    <input id="saturation" type="range" name="slider" value="0" min="-100" max="100" data-highlight="false" />
-                </fieldset>
-
-                <fieldset data-role="controlgroup" data-mini="true">
-                    <label for="slider-hue">
-                        Hue
-                    </label>
-                    <input id="hue" type="range" name="slider" value="0" min="0" max="360" data-highlight="false" />
-                </fieldset>
-
-                <fieldset data-role="controlgroup" data-mini="true">
-                    <label for="slider-hue">
-                        Minimum Brightness
-                    </label>
-                    <input id="minBrightness" type="range" name="slider" value="0" min="0" max="255" data-highlight="false" />
-                </fieldset>
-
-                <fieldset data-role="controlgroup" data-mini="true">
-                    <label for="slider-hue">
-                        Maximum Brightness
-                    </label>
-                    <input id="maxBrightness" type="range" name="slider" value="0" min="0" max="255" data-highlight="false" />
-                </fieldset>
-
-                <fieldset data-role="controlgroup" data-mini="true">
-                    <label for="slider-hue">
-                        Minimum Colorfullness
-                    </label>
-                    <input id="minColorfulness" type="range" name="slider" value="0" min="0" max="255" data-highlight="false" />
-                </fieldset>
+                <div data-role="fieldcontain" class="">
+                    <label for="saturation">Saturation:</label>
+                    <input id="saturation" class="refresh" type="range" name="saturation" min="-100" max="100" value="0">
+                </div>
             </div>
-            <input data-theme="b" type="submit" value="Submit" onclick="submitSettings();"/>
+
+            <div data-role="fieldcontain">
+                <div data-role="fieldcontain" class="">
+                    <label for="hue">Color Hue:</label>
+                    <input id="hue" class="refresh" type="range" name="hue" min="0" max="320" value="0">
+                </div>
+            </div>
+
+            <div data-role="fieldcontain">
+                <label for="range-1a">Brightness Range</label>
+
+                <div data-role="rangeslider">
+                    <!-- <label for="range-1a">Min Brightness:</label> -->
+                    <input id="minBrightness" class="refresh" type="range" name="range-1a" id="range-1a" min="0" max="255" value="0">
+                    <!-- <label for="range-1b">Max Brightness:</label> -->
+                    <input id="maxBrightness" class="refresh" type="range" name="range-1b" id="range-1b" min="0" max="255" value="255">
+                </div>
+
+            </div>
+
+            <div data-role="fieldcontain">
+                <div data-role="fieldcontain" class="">
+                    <label for="minColorfulness">Min Colorfulness:</label>
+                    <input id="minColorfulness" class="refresh" type="range" name="minColorfulness" min="0" max="255" value="0">
+                </div>
+            </div>
+
+            <div data-role="fieldcontain" align="center" style="text-align: center;">
+                <div data-role="controlgroup" data-type="horizontal">
+                    <a href="#" data-role="button" data-icon="check" onclick="submitSettings();">Submit</a>
+                    <a href="#" data-role="button" data-icon="back" onclick="getSettings();">Reset</a>
+                    <a href="#" data-role="button" data-icon="home" onclick="defaultSettings();">Default</a>
+
+                </div>
+            </div>
+
+            <div data-role="fieldcontain" align="center" style="text-align: center;">
+                <label for="toggleAutoSubmit">Auto Submit</label>
+                <select id="toggleAutoSubmit" name="toggleAutoSubmit" id="flip-1" data-role="slider">
+                  <option value="off">OFF</option>
+                  <option value="on">ON</option>
+                </select>
+            </div>
+
         </div>
     </div>
 

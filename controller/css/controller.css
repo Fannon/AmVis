@@ -1,0 +1,17 @@
+body {
+    margin: 0 auto;
+}
+
+button.active {
+    background: #555;
+}
+.ui-field-contain, fieldset.ui-field-contain {
+    border-width: 0 0 1px;
+    margin: 0;
+    overflow: visible;
+    padding: 0.4em 0;
+}
+.ui-content {
+    /*max-width: 415px;*/
+    padding: 7px;
+}

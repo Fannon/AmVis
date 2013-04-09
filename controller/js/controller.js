@@ -8,21 +8,34 @@
 /////////////////////////
 // Variables           //
 /////////////////////////
-//
+
 var controller = {};
 var socket = io.connect(settings.serverUrl);
 controller.tryAgainInterval = settings.tryAgainInterval;
-controller.settings = {}; // Discard Settings
 controller.connected = false;
 controller.ready = false;
+controller.autoSubmit = false;
+controller.autoSubmitInterval = settings.interval;
 
+controller.defaultSettings = settings;
+controller.settings = {}; // Discard Settings
 
 /////////////////////////
 // Startup             //
 /////////////////////////
 
 jQuery(document).ready(function() {
+
+    var toggleAutoSubmit = $('#toggleAutoSubmit');
+
     getSettings();
+
+    setInterval(function(){
+        if (toggleAutoSubmit.val() == 'on') {
+            submitSettings();
+        }
+    }, controller.autoSubmitInterval);
+
 });
 
 
@@ -37,6 +50,24 @@ function submitSettings() {
 
 function getSettings() {
     socket.emit('get_settings');
+}
+
+function defaultSettings() {
+    controller.settings = controller.defaultSettings;
+    writeValues();
+}
+
+function toggleAutoSubmit() {
+
+    if ($('#toggleAutoSubmit').hasClass('active')) {
+        $('#toggleAutoSubmit').removeClass('active');
+        controller.autoSubmit = false;
+    } else {
+        $('#toggleAutoSubmit').addClass('active');
+        controller.autoSubmit = true;
+    }
+
+
 }
 
 function readValues() {
@@ -64,7 +95,7 @@ function writeValues() {
     $('#maxBrightness').val(controller.settings.maxBrightness);
     $('#minColorfulness').val(controller.settings.minColorfulness);
 
-    $('input[name="slider"]').slider('refresh');
+    $('.refresh').slider('refresh');
 }
 
 /////////////////////////
