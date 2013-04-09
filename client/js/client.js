@@ -2,81 +2,70 @@
 // Client Main JavaScript ///////////////
 /////////////////////////////////////////
 
+
 /////////////////////////
-// Variables & Options //
+// Variables           //
 /////////////////////////
 
-var video = document.querySelector("#vid");
+var video = document.querySelector("#video");
 var canvas = document.querySelector('#canvas');
+var localMediaStream = null;
 var ctx = canvas.getContext('2d');
 var cw = canvas.width;
 var ch = canvas.height;
 var pixelCount = cw*ch;
+var colorRingBuffer = settings.defaultColorArray;
 
-
-var localMediaStream = null;
-var options = {video:true, audio:false}; // (Video only)
 
 /////////////////////////
-// Parse Settings      //
+// Receive Controlling //
 /////////////////////////
 
-// TODO: Evtl. durch Controller setzen lassen
-var interval = 2000; // in ms
-var analogAngle = 20; // Colorcircle Rotation in Grad for calculating analog palette
-var maxBrightness = 100;
-var minBrightness = 20;
-var colorRingBuffer = [[0,0,0], [0,0,0], [0,0,0], [0,0,0]]; // Fade in with Black Screen
+// TODO: Receive Instructions from Controller App
+
 
 /////////////////////////
-// Get Webcam Stream   //
+// Start this app      //
 /////////////////////////
 
-// Cross Browser
-navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
-window.URL = window.URL || window.webkitURL;
+jQuery(document).ready(function() {
 
-// Get Webcam Stream
-navigator.getUserMedia(options, function (stream) {
-    video.src = window.URL.createObjectURL(stream);
-    localMediaStream = stream;
-}, cameraFail);
+    enableWebcamStream(video);
+
+    // TODO: Make this controllable
+    programs.colorpalette();
+
+});
 
 
 /////////////////////////
 // Processing Stream   //
 /////////////////////////
 
-// Camera Failing
-var cameraFail = function (e) {
-    console.log('Camera Frail: ', e);
-};
-
 /**
  * Draws current WebCam Frame to 2D Canvas
- * Calculates Color informations
+ * Calculates Metadata from actual videoframe
  */
-var calculate = function() {
+var calculateMetaData = function() {
+
     if (localMediaStream) {
+
+        var metaDataObject = {};
 
         // draw image according to canvas width and height
         ctx.drawImage(video, 0, 0, cw, ch);
 
-        // Gets Pixeldata from Image
-        var pixels = ctx.getImageData(0, 0, cw, ch).data;
+        // Get Color Metadata
+        var pixels = ctx.getImageData(0, 0, cw, ch).data; // Gets Pixeldata from Image
+        metaDataObject['colors'] = calculateColors(pixels, pixelCount);
 
-        var colorObject = calculateColors(pixels, pixelCount);
-
-        showColors(colorObject);
+        return metaDataObject;
 
     } else {
         cameraFail('No localMediaStream');
     }
 };
 
-setInterval(function(){
-    calculate();
-}, interval); // For Fast Realtime-Preview
 
 ///////////////////////
 // Helper Functions ///
@@ -101,10 +90,9 @@ function calculateColors(pixels, pixelCount) {
     for (var i = 0; i < pixelCount; i++) {
 
         // Just take Pixels that are not too bright or too dark
-        if(!(pixels[i*4] > maxBrightness && pixels[i*4+1] > maxBrightness && pixels[i*4+2] > maxBrightness) && pixels[i*4] > minBrightness && pixels[i*4+1] > minBrightness && pixels[i*4+2] > minBrightness){
+        if(!(pixels[i*4] > settings.maxBrightness && pixels[i*4+1] > settings.maxBrightness && pixels[i*4+2] > settings.maxBrightness) && pixels[i*4] > settings.minBrightness && pixels[i*4+1] > settings.minBrightness && pixels[i*4+2] > settings.minBrightness){
             pixelArray.push( [pixels[i*4], pixels[i*4+1], pixels[i*4+2]]);
         }
-
     }
 
     // Send array to quantize function which clusters values using median cut algorithm
@@ -129,7 +117,7 @@ function calculateColors(pixels, pixelCount) {
         diff += Math.abs(palette[j][0] - palette[j][2]);
         diff += Math.abs(palette[j][1] - palette[j][2]);
 
-        if (diff > 100) {
+        if (diff > settings.minColorfulness) {
             dominantColor = palette[j];
             break;
         }
@@ -169,15 +157,15 @@ function calculateColors(pixels, pixelCount) {
     // Calculate Analog Palette   //
     ////////////////////////////////
 
-    dominantColor = Color().rgb(colorObject['dominant']);
+    dominantColor = Color().rgb(colorObject['dominant_avg']);
 
     var analog = [
         // Starting with the Dominant Color minus two Rotations
-        dominantColor.rotate(-2 * analogAngle).rgbArray(),
-        dominantColor.rotate(analogAngle).rgbArray(),
-        dominantColor.rotate(analogAngle).rgbArray(),
-        dominantColor.rotate(analogAngle).rgbArray(),
-        dominantColor.rotate(analogAngle).rgbArray()
+        dominantColor.rotate(-2 * settings.analogAngle).rgbArray(),
+        dominantColor.rotate(settings.analogAngle).rgbArray(),
+        dominantColor.rotate(settings.analogAngle).rgbArray(),
+        dominantColor.rotate(settings.analogAngle).rgbArray(),
+        dominantColor.rotate(settings.analogAngle).rgbArray()
     ];
 
     colorObject['analog'] = analog;
@@ -195,38 +183,64 @@ function calculateColors(pixels, pixelCount) {
 }
 
 /**
- * Debugging Funktion die das berechnete ColorObject mit farbigen DIVs visuell darstellt
+ * Cross Browser Shim for HTML5 Webcam Input
+ * http://wolframhempel.com/2012/11/27/getusermedia-cross-browser-shim/
  *
- * @param  {object} colorObject
+ * @param  {[type]} videoDomElement [description]
+ * @return {[type]}                 [description]
  */
-function showColors(colorObject) {
+enableWebcamStream = function(videoDomElement) {
 
-    var html = '<div id="colordebug">';
+    videoDomElement.autoplay = true;
 
-    html += '<div style="background-color: rgba(' + colorObject.dominant[0] + ',' + colorObject.dominant[1] + ',' +colorObject.dominant[2] + ', 1.0)">DOMINANT</div><br>';
+    var getUserMedia = (
+        navigator.getUserMedia ||
+        navigator.webkitGetUserMedia ||
+        navigator.mozGetUserMedia ||
+        navigator.oGetUserMedia ||
+        navigator.msieGetUserMedia ||
+        false
+    );
 
-    html += '<div style="background-color: rgba(' + colorObject.dominant_avg[0] + ',' + colorObject.dominant_avg[1] + ',' +colorObject.dominant_avg[2] + ', 1.0)">DOMINANT AVERAGE</div><br>';
+    var onStream = function( stream ) {
 
+        try {
+            /**
+            * Chrome / Opera
+            */
+            videoDomElement.src = ( window.URL || window.webkitURL ).createObjectURL( stream );
+            localMediaStream = stream;
+        } catch( e ) {
+            /**
+            * Firefox
+            */
+            if( videoDomElement.srcObject ) {
+                videoDomElement.srcObject = stream;
+                localMediaStream = stream;
+            } else {
+                videoDomElement.mozSrcObject = stream;
+                localMediaStream = stream;
+            }
+            videoDomElement.play();
+        }
+    };
 
-    for (var i = 0; i < colorObject.palette.length; i++) {
-        html += '<div style="background-color: rgba(' + colorObject.palette[i][0] + ',' + colorObject.palette[i][1] + ',' +colorObject.palette[i][2] + ', 1.0)">PALETTE</div>';
+    var onError = function( error ) {
+        cameraFail(error);
+    };
+
+    if(getUserMedia) {
+        getUserMedia.call( navigator, settings.webcamoptions, onStream, onError );
     }
+};
 
-    html += '<br>';
-
-    for (var j = 0; j < colorObject.analog.length; j++) {
-        html += '<div style="background-color: rgba(' + colorObject.analog[j][0] + ',' + colorObject.analog[j][1] + ',' +colorObject.analog[j][2] + ', 1.0)">ANALOG</div>';
-    }
-
-    html += '<br><div style="background-color: rgba(' + colorObject.negate[0] + ',' + colorObject.negate[1] + ',' +colorObject.negate[2] + ', 1.0)">COMPLEMENT</div>';
-
-    html += '</div>';
-
-    $('#colors').html(html);
-
-}
+// Camera Failing
+var cameraFail = function (e) {
+    console.log('Camera Fail / Not ready: ', e);
+};
 
 /**
+ * TODO:
  * RingBuffer um Dominant Color zu "stabilisieren"
  * Code zum Teil von: http://stackoverflow.com/a/4774081/776425
  *
