@@ -1,6 +1,12 @@
-/////////////////////////////////////////
-// Client Main JavaScript ///////////////
-/////////////////////////////////////////
+/**
+ * HTML5 Ambient Visualizer
+ *
+ * Uses Webcam to analyse current Colors of the envirionment
+ * and generates matching WebGL Visualisations
+ *
+ * @author Simon Heimler
+ * @author Sebastian Huber
+ */
 
 
 /////////////////////////
@@ -160,33 +166,34 @@ function calculateColors(pixels, pixelCount) {
     // Calculate Dominant Average //
     ////////////////////////////////
 
-    // TODO: Durch anständigen Ringbuffer ersetzen
-    colorRingBuffer[3] = colorRingBuffer[2];
-    colorRingBuffer[2] = colorRingBuffer[1];
-    colorRingBuffer[1] = colorRingBuffer[0];
-    colorRingBuffer[0] = dominantColor;
+    // TODO: Use a Ringbuffer for this
 
-    var r = 0;
-    var g = 0;
-    var b = 0;
-    for (i = 0; i < colorRingBuffer.length; i++) {
+    // colorRingBuffer[3] = colorRingBuffer[2];
+    // colorRingBuffer[2] = colorRingBuffer[1];
+    // colorRingBuffer[1] = colorRingBuffer[0];
+    // colorRingBuffer[0] = dominantColor;
 
-        // console.log(colorRingBuffer[i]);
+    // var r = 0;
+    // var g = 0;
+    // var b = 0;
+    // for (i = 0; i < colorRingBuffer.length; i++) {
 
-        r += colorRingBuffer[i][0];
-        g += colorRingBuffer[i][1];
-        b += colorRingBuffer[i][2];
-    }
-    avg = [Math.round(r/colorRingBuffer.length), Math.round(g/colorRingBuffer.length), Math.round(b/colorRingBuffer.length)];
+    //     // console.log(colorRingBuffer[i]);
 
-    colorObject['dominant_avg'] = finalDominantColor;
+    //     r += colorRingBuffer[i][0];
+    //     g += colorRingBuffer[i][1];
+    //     b += colorRingBuffer[i][2];
+    // }
+    // avg = [Math.round(r/colorRingBuffer.length), Math.round(g/colorRingBuffer.length), Math.round(b/colorRingBuffer.length)];
+
+    // colorObject['dominant_avg'] = finalDominantColor;
 
 
     ////////////////////////////////
-    // Calculate Analog Palette   //
+    // Calculate Palettes         //
     ////////////////////////////////
 
-    // dominantColor = Color(rgbToString(colorObject['dominant_avg']));
+    // TODO: Write generic Function which returns Colorpalettes (?)
 
     var analog = finalDominantColor.analogousScheme();
 
@@ -195,26 +202,9 @@ function calculateColors(pixels, pixelCount) {
     var listOfdegrees = [-2 * settings.analogAngle, -settings.analogAngle, 0, settings.analogAngle, 2*settings.analogAngle];
     var analog_custom = finalDominantColor.schemeFromDegrees(listOfdegrees);
 
-    // var analog = [
-    //     // Starting with the Dominant Color minus two Rotations
-    //     dominantColor.rotate(-2 * settings.analogAngle).rgbArray(),
-    //     dominantColor.rotate(settings.analogAngle).rgbArray(),
-    //     dominantColor.rotate(settings.analogAngle).rgbArray(),
-    //     dominantColor.rotate(settings.analogAngle).rgbArray(),
-    //     dominantColor.rotate(settings.analogAngle).rgbArray()
-    // ];
-
     colorObject['analog'] = analog;
     colorObject['analog_custom'] = analog_custom;
     colorObject['neutral'] = neutral;
-
-
-    ////////////////////////////////
-    // Calculate Complement Color //
-    ////////////////////////////////
-
-    // dominantColor = Color().rgb(colorObject['dominant']);
-    // colorObject['negate'] = dominantColor.negate().rgbArray();
 
     return colorObject;
 
@@ -272,7 +262,11 @@ enableWebcamStream = function(videoDomElement) {
     }
 };
 
-// Camera Failing
+/**
+ * On Camera Failure
+ *
+ * @param  {object} e Error Description / Object
+ */
 var cameraFail = function (e) {
     console.log('Camera Fail / Not ready: ', e);
 };
