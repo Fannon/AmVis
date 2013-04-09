@@ -15,34 +15,44 @@
             </h5>
         </div>
         <div data-role="content">
-            <div data-role="fieldcontain">
-                <fieldset data-role="controlgroup" data-type="vertical">
-                    <legend>
-                        Program:
-                    </legend>
-                    <input id="radio1" name="" value="" type="radio" />
-                    <label for="radio1">
-                        Program 1
-                    </label>
-                    <input id="radio2" name="" value="radio2" type="radio" />
-                    <label for="radio2">
-                        Program 2
-                    </label>
-                    <input id="radio3" name="" value="radio3" type="radio" />
-                    <label for="radio3">
-                        Program 3
-                    </label>
-                </fieldset>
-            </div>
+
             <div data-role="fieldcontain">
                 <fieldset data-role="controlgroup" data-mini="true">
-                    <label for="slider1">
-                        Something
+                    <label for="slider-saturation">
+                        Saturation
                     </label>
-                    <input type="range" name="slider" value="50" min="0" max="100" data-highlight="false" />
+                    <input id="saturation" type="range" name="slider" value="0" min="-100" max="100" data-highlight="false" />
+                </fieldset>
+
+                <fieldset data-role="controlgroup" data-mini="true">
+                    <label for="slider-hue">
+                        Hue
+                    </label>
+                    <input id="hue" type="range" name="slider" value="0" min="0" max="360" data-highlight="false" />
+                </fieldset>
+
+                <fieldset data-role="controlgroup" data-mini="true">
+                    <label for="slider-hue">
+                        Minimum Brightness
+                    </label>
+                    <input id="minBrightness" type="range" name="slider" value="0" min="0" max="255" data-highlight="false" />
+                </fieldset>
+
+                <fieldset data-role="controlgroup" data-mini="true">
+                    <label for="slider-hue">
+                        Maximum Brightness
+                    </label>
+                    <input id="maxBrightness" type="range" name="slider" value="0" min="0" max="255" data-highlight="false" />
+                </fieldset>
+
+                <fieldset data-role="controlgroup" data-mini="true">
+                    <label for="slider-hue">
+                        Minimum Colorfullness
+                    </label>
+                    <input id="minColorfulness" type="range" name="slider" value="0" min="0" max="255" data-highlight="false" />
                 </fieldset>
             </div>
-            <input type="submit" value="Submit" />
+            <input data-theme="b" type="submit" value="Submit" onclick="submitSettings();"/>
         </div>
     </div>
 

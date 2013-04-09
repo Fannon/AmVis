@@ -8,6 +8,7 @@
 /////////////////////////
 // Variables           //
 /////////////////////////
+//
 var controller = {};
 var socket = io.connect(settings.serverUrl);
 controller.tryAgainInterval = settings.tryAgainInterval;
@@ -30,13 +31,41 @@ jQuery(document).ready(function() {
 /////////////////////////
 
 function submitSettings() {
-    socket.emit('upload_settings', controller.settings);
+    var newSettings = readValues();
+    socket.emit('upload_settings', newSettings);
 }
 
 function getSettings() {
     socket.emit('get_settings');
 }
 
+function readValues() {
+
+    var saturation = $('#saturation').val();
+    var hue = $('#hue').val();
+    minBrightness = $('#minBrightness').val();
+    maxBrightness = $('#maxBrightness').val();
+    minColorfulness = $('#minColorfulness').val();
+
+    controller.settings.saturation = saturation/100;
+    controller.settings.shiftHue = parseInt(hue, 10);
+    controller.settings.minBrightness = parseInt(minBrightness, 10);
+    controller.settings.maxBrightness = parseInt(maxBrightness, 10);
+    controller.settings.minColorfulness = parseInt(minColorfulness, 10);
+
+    return controller.settings;
+}
+
+function writeValues() {
+
+    $('#saturation').val(controller.settings.saturation*100);
+    $('#hue').val(controller.settings.shiftHue);
+    $('#minBrightness').val(controller.settings.minBrightness);
+    $('#maxBrightness').val(controller.settings.maxBrightness);
+    $('#minColorfulness').val(controller.settings.minColorfulness);
+
+    $('input[name="slider"]').slider('refresh');
+}
 
 /////////////////////////
 // Transfer Protocol   //
@@ -59,8 +88,8 @@ socket.on('current_settings', function (data) {
         setTimeout(function(){socket.emit('get_settings');}, controller.tryAgainInterval);
     }
 
-    console.dir(data);
     controller.settings = data;
+    writeValues();
 });
 
 socket.on('msg', function (data) {

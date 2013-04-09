@@ -173,7 +173,7 @@ function calculateColors(pixels, pixelCount) {
     }
 
     // Shift the hue if not 0
-    if (settings.shiftHue !== 0) {
+    if (settings.shiftHue > 0) {
         finalDominantColor = finalDominantColor.shiftHue(settings.shiftHue);
     }
 
