@@ -123,6 +123,15 @@ socket.on('current_settings', function (data) {
     writeValues();
 });
 
+// On incoming Settings from Server
+socket.on('new_settings', function (data) {
+
+    console.log('NEW SETTINGS RECEIVED');
+
+    controller.settings = data;
+    writeValues();
+});
+
 socket.on('msg', function (data) {
     console.log('MESSAGE FROM SERVER: ' + data);
 });

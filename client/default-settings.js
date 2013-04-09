@@ -5,7 +5,7 @@ settings.set               = true;
 settings.serverUrl         = 'http://ec2-54-228-30-155.eu-west-1.compute.amazonaws.com:8888';
 
 // Visual Settings
-settings.interval          = 250;  // in ms
+settings.interval          = 200;  // in ms
 settings.analogAngle       = 20;    // Rotation Degree for calculating analog palette
 settings.maxBrightness     = 100;   // 0 to 255
 settings.minBrightness     = 20;    // 0 to 255
