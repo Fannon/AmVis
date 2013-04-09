@@ -14,6 +14,7 @@ var ctx = canvas.getContext('2d');
 var cw = canvas.width;
 var ch = canvas.height;
 var pixelCount = cw*ch;
+var Color = net.brehaut.Color;
 var colorRingBuffer = settings.defaultColorArray;
 
 
@@ -83,7 +84,9 @@ var calculateMetaData = function() {
  */
 function calculateColors(pixels, pixelCount) {
 
-    var colorObject = {};
+    var colorObject = {
+        'palette': []
+    };
     var pixelArray = [];
     var dominantColor;
 
@@ -99,33 +102,59 @@ function calculateColors(pixels, pixelCount) {
     var cmap = MMCQ.quantize(pixelArray, 5);
     var palette = cmap.palette();
 
-    colorObject['palette'] = palette;
+
+    ////////////////////////////////
+    // Calculate Palette          //
+    ////////////////////////////////
+
+    // Convert RGB Arrays to Color Objects
+    colorObject['palette'][0] = Color(rgbToString(palette[0]));
+    colorObject['palette'][1] = Color(rgbToString(palette[1]));
+    colorObject['palette'][2] = Color(rgbToString(palette[2]));
+    colorObject['palette'][3] = Color(rgbToString(palette[3]));
+    colorObject['palette'][4] = Color(rgbToString(palette[4]));
 
 
     ////////////////////////////////
     // Calculate Dominant Color   //
     ////////////////////////////////
 
-    // Using a "Diff Score" to guess which Color is most interesting
-    // Also this takes care of too greyish colors that produce a very boring analogue palette
-
     dominantColor = palette[0];
 
-    for (var j = 0; j < palette.length; j++) {
-        var diff = 0;
-        diff += Math.abs(palette[j][0] - palette[j][1]);
-        diff += Math.abs(palette[j][0] - palette[j][2]);
-        diff += Math.abs(palette[j][1] - palette[j][2]);
+    // Using a "Diff Score" to guess which Color is most interesting
+    // Also this takes care of too greyish colors that produce a very boring analogue palette
+    if (settings.minColorfulness !== 0) {
+        for (var j = 0; j < palette.length; j++) {
 
-        if (diff > settings.minColorfulness) {
-            dominantColor = palette[j];
-            break;
+            var diff = 0;
+            diff += Math.abs(palette[j][0] - palette[j][1]);
+            diff += Math.abs(palette[j][0] - palette[j][2]);
+            diff += Math.abs(palette[j][1] - palette[j][2]);
+
+            if (diff > settings.minColorfulness) {
+                dominantColor = palette[j];
+                break;
+            }
+            // console.log('DIFF Score: ' + diff + ' bei #' + j);
         }
-
-        // console.log('DIFF Score: ' + diff + ' bei #' + (j+1));
     }
 
-    colorObject['dominant'] = dominantColor;
+    // PostProcessing Color
+    var finalDominantColor = Color(rgbToString(dominantColor));
+
+    // Add / Remove Saturation if setting not 0
+    if (settings.saturation > 0) {
+        finalDominantColor = finalDominantColor.saturateByRatio(settings.saturation);
+    } else if (settings.saturation < 0) {
+        finalDominantColor = finalDominantColor.desaturateByRatio(-settings.saturation);
+    }
+
+    // Shift the hue if not 0
+    if (settings.shiftHue !== 0) {
+        finalDominantColor = finalDominantColor.shiftHue(settings.shiftHue);
+    }
+
+    colorObject['dominant'] = finalDominantColor;
 
     ////////////////////////////////
     // Calculate Dominant Average //
@@ -141,42 +170,51 @@ function calculateColors(pixels, pixelCount) {
     var g = 0;
     var b = 0;
     for (i = 0; i < colorRingBuffer.length; i++) {
-        console.log(colorRingBuffer[i]);
+
+        // console.log(colorRingBuffer[i]);
+
         r += colorRingBuffer[i][0];
         g += colorRingBuffer[i][1];
         b += colorRingBuffer[i][2];
     }
     avg = [Math.round(r/colorRingBuffer.length), Math.round(g/colorRingBuffer.length), Math.round(b/colorRingBuffer.length)];
 
-    console.log('AVG: ' + avg);
-
-    colorObject['dominant_avg'] = avg;
+    colorObject['dominant_avg'] = finalDominantColor;
 
 
     ////////////////////////////////
     // Calculate Analog Palette   //
     ////////////////////////////////
 
-    dominantColor = Color().rgb(colorObject['dominant_avg']);
+    // dominantColor = Color(rgbToString(colorObject['dominant_avg']));
 
-    var analog = [
-        // Starting with the Dominant Color minus two Rotations
-        dominantColor.rotate(-2 * settings.analogAngle).rgbArray(),
-        dominantColor.rotate(settings.analogAngle).rgbArray(),
-        dominantColor.rotate(settings.analogAngle).rgbArray(),
-        dominantColor.rotate(settings.analogAngle).rgbArray(),
-        dominantColor.rotate(settings.analogAngle).rgbArray()
-    ];
+    var analog = finalDominantColor.analogousScheme();
+
+    var neutral = finalDominantColor.neutralScheme();
+
+    var listOfdegrees = [-2 * settings.analogAngle, -settings.analogAngle, 0, settings.analogAngle, 2*settings.analogAngle];
+    var analog_custom = finalDominantColor.schemeFromDegrees(listOfdegrees);
+
+    // var analog = [
+    //     // Starting with the Dominant Color minus two Rotations
+    //     dominantColor.rotate(-2 * settings.analogAngle).rgbArray(),
+    //     dominantColor.rotate(settings.analogAngle).rgbArray(),
+    //     dominantColor.rotate(settings.analogAngle).rgbArray(),
+    //     dominantColor.rotate(settings.analogAngle).rgbArray(),
+    //     dominantColor.rotate(settings.analogAngle).rgbArray()
+    // ];
 
     colorObject['analog'] = analog;
+    colorObject['analog_custom'] = analog_custom;
+    colorObject['neutral'] = neutral;
 
 
     ////////////////////////////////
     // Calculate Complement Color //
     ////////////////////////////////
 
-    dominantColor = Color().rgb(colorObject['dominant']);
-    colorObject['negate'] = dominantColor.negate().rgbArray();
+    // dominantColor = Color().rgb(colorObject['dominant']);
+    // colorObject['negate'] = dominantColor.negate().rgbArray();
 
     return colorObject;
 
@@ -273,3 +311,13 @@ CircularBuffer.prototype.getAvg = function(){
     }
     return [Math.round(r/this.buffer.length), Math.round(g/this.buffer.length), Math.round(b/this.buffer.length)];
 };
+
+
+/**
+ * Converts RGB Array to CSS friendly String
+ * @param  {array} rgbArray
+ * @return {string}
+ */
+function rgbToString(rgbArray) {
+    return 'rgb(' + rgbArray[0] + ', ' + rgbArray[1] + ', ' + rgbArray[2] + ')';
+}

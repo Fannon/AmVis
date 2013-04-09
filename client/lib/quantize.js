@@ -1,4 +1,4 @@
-/*! 
+/*!
  * quantize.js Copyright 2008 Nick Rabinowitz.
  * Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
  */
@@ -31,13 +31,13 @@ if (!pv) {
         }
     }
 }
- 
+
 /**
  * Basic Javascript port of the MMCQ (modified median cut quantization)
  * algorithm from the Leptonica library (http://www.leptonica.com/).
  * Returns a color map you can use to map original pixels to the reduced
  * palette. Still a work in progress.
- * 
+ *
  * @author Nick Rabinowitz
  * @example
 
@@ -49,10 +49,10 @@ var maxColors = 4;
 
 var cmap = MMCQ.quantize(myPixels, maxColors);
 var newPalette = cmap.palette();
-var newPixels = myPixels.map(function(p) { 
-    return cmap.map(p); 
+var newPixels = myPixels.map(function(p) {
+    return cmap.map(p);
 });
- 
+
  */
 var MMCQ = (function() {
     // private constants
@@ -60,22 +60,22 @@ var MMCQ = (function() {
         rshift = 8 - sigbits,
         maxIterations = 1000,
         fractByPopulations = 0.75;
-    
+
     // get reduced-space color index for a pixel
     function getColorIndex(r, g, b) {
         return (r << (2 * sigbits)) + (g << sigbits) + b;
     }
-    
+
     // Simple priority queue
     function PQueue(comparator) {
         var contents = [],
             sorted = false;
-        
+
         function sort() {
             contents.sort(comparator);
             sorted = true;
         }
-        
+
         return {
             push: function(o) {
                 contents.push(o);
@@ -102,7 +102,7 @@ var MMCQ = (function() {
             }
         };
     }
-    
+
     // 3d color space box
     function VBox(r1, r2, g1, g2, b1, b2, histo) {
         var vbox = this;
@@ -191,14 +191,14 @@ var MMCQ = (function() {
                     bval >= vbox.b1 && rval <= vbox.b2);
         }
     };
-    
+
     // Color map
     function CMap() {
-        this.vboxes = new PQueue(function(a,b) { 
+        this.vboxes = new PQueue(function(a,b) {
             return pv.naturalOrder(
-                a.vbox.count()*a.vbox.volume(), 
+                a.vbox.count()*a.vbox.volume(),
                 b.vbox.count()*b.vbox.volume()
-            ) 
+            )
         });;
     }
     CMap.prototype = {
@@ -243,12 +243,12 @@ var MMCQ = (function() {
             // XXX: won't  work yet
             var vboxes = this.vboxes;
             vboxes.sort(function(a,b) { return pv.naturalOrder(pv.sum(a.color), pv.sum(b.color) )});
-            
+
             // force darkest color to black if everything < 5
             var lowest = vboxes[0].color;
             if (lowest[0] < 5 && lowest[1] < 5 && lowest[2] < 5)
                 vboxes[0].color = [0,0,0];
-            
+
             // force lightest color to white if everything > 251
             var idx = vboxes.length-1,
                 highest = vboxes[idx].color;
@@ -256,7 +256,7 @@ var MMCQ = (function() {
                 vboxes[idx].color = [255,255,255];
         }
     };
-    
+
     // histo (1-d array, giving the number of pixels in
     // each quantized region of color space), or null on error
     function getHisto(pixels) {
@@ -272,11 +272,11 @@ var MMCQ = (function() {
         });
         return histo;
     }
-    
+
     function vboxFromPixels(pixels, histo) {
-        var rmin=1000000, rmax=0, 
-            gmin=1000000, gmax=0, 
-            bmin=1000000, bmax=0, 
+        var rmin=1000000, rmax=0,
+            gmin=1000000, gmax=0,
+            bmin=1000000, bmax=0,
             rval, gval, bval;
         // find min/max
         pixels.forEach(function(pixel) {
@@ -292,10 +292,10 @@ var MMCQ = (function() {
         });
         return new VBox(rmin, rmax, gmin, gmax, bmin, bmax, histo);
     }
-    
+
     function medianCutApply(histo, vbox) {
         if (!vbox.count()) return;
-        
+
         var rw = vbox.r2 - vbox.r1 + 1,
             gw = vbox.g2 - vbox.g1 + 1,
             bw = vbox.b2 - vbox.b1 + 1,
@@ -348,12 +348,12 @@ var MMCQ = (function() {
                 partialsum[i] = total;
             }
         }
-        partialsum.forEach(function(d,i) { 
-            lookaheadsum[i] = total-d 
+        partialsum.forEach(function(d,i) {
+            lookaheadsum[i] = total-d
         });
         function doCut(color) {
             var dim1 = color + '1',
-                dim2 = color + '2', 
+                dim2 = color + '2',
                 left, right, vbox1, vbox2, d2, count2=0;
             for (i = vbox[dim1]; i <= vbox[dim2]; i++) {
                 if (partialsum[i] > total / 2) {
@@ -375,7 +375,7 @@ var MMCQ = (function() {
                     return [vbox1, vbox2];
                 }
             }
-        
+
         }
         // determine the cut planes
         return maxw == rw ? doCut('r') :
@@ -389,24 +389,24 @@ var MMCQ = (function() {
 //            console.log('wrong number of maxcolors');
             return false;
         }
-        
+
         // XXX: check color content and convert to grayscale if insufficient
-        
+
         var histo = getHisto(pixels),
             histosize = 1 << (3 * sigbits);
-        
+
         // check that we aren't below maxcolors already
         var nColors = 0;
         histo.forEach(function() { nColors++ });
         if (nColors <= maxcolors) {
             // XXX: generate the new colors from the histo and return
         }
-        
+
         // get the beginning vbox from the colors
         var vbox = vboxFromPixels(pixels, histo),
             pq = new PQueue(function(a,b) { return pv.naturalOrder(a.count(), b.count()) });
         pq.push(vbox);
-        
+
         // inner function to do the iteration
         function iter(lh, target) {
             var ncolors = 1,
@@ -423,7 +423,7 @@ var MMCQ = (function() {
                 var vboxes = medianCutApply(histo, vbox),
                     vbox1 = vboxes[0],
                     vbox2 = vboxes[1];
-                    
+
                 if (!vbox1) {
 //                    console.log("vbox1 not defined; shouldn't happen!");
                     return;
@@ -440,31 +440,31 @@ var MMCQ = (function() {
                 }
             }
         }
-        
+
         // first set of colors, sorted by population
         iter(pq, fractByPopulations * maxcolors);
         // console.log(pq.size(), pq.debug().length, pq.debug().slice());
-        
+
         // Re-sort by the product of pixel occupancy times the size in color space.
-        var pq2 = new PQueue(function(a,b) { 
-            return pv.naturalOrder(a.count()*a.volume(), b.count()*b.volume()) 
+        var pq2 = new PQueue(function(a,b) {
+            return pv.naturalOrder(a.count()*a.volume(), b.count()*b.volume())
         });
         while (pq.size()) {
             pq2.push(pq.pop());
         }
-        
+
         // next set - generate the median cuts using the (npix * vol) sorting.
         iter(pq2, maxcolors - pq2.size());
-        
+
         // calculate the actual colors
         var cmap = new CMap();
         while (pq2.size()) {
             cmap.push(pq2.pop());
         }
-        
+
         return cmap;
     }
-    
+
     return {
         quantize: quantize
     }
