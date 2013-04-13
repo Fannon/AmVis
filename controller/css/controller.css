@@ -16,14 +16,18 @@ button.active {
     padding: 7px;
 }
 
-#dominantColor {
+#dominantColor,
+#motionScore {
     color: #FFF;
+    background-color: #000;
     text-shadow: 0px 0px 5px #555;
     text-align: center;
-    width: 100%;
     padding: 7px;
     -moz-border-radius: 3px;
     -webkit-border-radius: 3px;
     -khtml-border-radius: 3px;
     border-radius: 3px;
 }
+
+/* jQuery Mobile Overwrite */
+.ui-header .ui-title { margin-left: 7px; margin-right: 7px; }

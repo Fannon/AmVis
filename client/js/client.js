@@ -143,7 +143,8 @@ function calculateImageData(pixels) {
     }
 
     pixelArchive = pixels;
-    imageData['motion_score'] = motionScore / totalPixels; // Average
+    imageData['motion_score'] = Math.round((motionScore / totalPixels) * 100) / 100;
+    remoteInformations.motionScore = imageData['motion_score'];
 
     // Send array to quantize function which clusters values using median cut algorithm
     var cmap = MMCQ.quantize(pixelArray, 5);
@@ -201,7 +202,7 @@ function calculateImageData(pixels) {
         finalDominantColor = finalDominantColor.shiftHue(settings.shiftHue);
     }
 
-    remoteInformations.dominantColor = finalDominantColor;
+    remoteInformations.dominantColor = finalDominantColor.toCSS();
     imageData['dominant'] = finalDominantColor;
 
 
@@ -290,42 +291,6 @@ enableWebcamStream = function(videoDomElement) {
 var cameraFail = function (e) {
     console.log('Camera Fail / Not ready: ', e);
 };
-
-/**
- * TODO:
- * RingBuffer um Dominant Color zu "stabilisieren"
- * Code zum Teil von: http://stackoverflow.com/a/4774081/776425
- *
- * @param  {[type]} length [description]
- * @return {[type]}        [description]
- */
-function CircularBuffer(length) {
-    this.totalLength = length;
-    this.buffer = [];
-    this.pointer = 0;
-}
-CircularBuffer.prototype.toString= function() {
-    return '[object CircularBuffer('+this.buffer.length+') pointer ' +this.pointer + ']';
-};
-CircularBuffer.prototype.get= function(key) {
-    return this.buffer[key];
-};
-CircularBuffer.prototype.push = function(item) {
-    this.buffer[this.pointer] = item;
-    pointer = (this.totalLength + this.pointer +1) % this.totalLength;
-};
-CircularBuffer.prototype.getAvg = function(){
-    var r = 0;
-    var g = 0;
-    var b = 0;
-    for (var i = 0; i < this.buffer.length; i++) {
-        r += this.buffer[i][0];
-        g += this.buffer[i][1];
-        b += this.buffer[i][2];
-    }
-    return [Math.round(r/this.buffer.length), Math.round(g/this.buffer.length), Math.round(b/this.buffer.length)];
-};
-
 
 /**
  * Converts RGB Array to CSS friendly String

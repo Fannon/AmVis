@@ -135,9 +135,10 @@ socket.on('new_settings', function (data) {
     writeValues();
 });
 
+// On incoming Remote Informations (Current Data Values..)
 socket.on('remote_informations', function(data) {
-    console.log('REMOTE INFORMATIONS RECEIVED');
     $('#dominantColor').css('background-color', data.dominantColor);
+    $('#motionScore').text('MOTION SCORE: ' + data.motionScore);
 });
 
 socket.on('msg', function (data) {

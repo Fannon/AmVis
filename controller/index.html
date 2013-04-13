@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <title>HTML5 Ambient Visualizer Controller</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="lib/visualizer-controller.min.css" />
     <link rel="stylesheet" href="lib/jquery.mobile.structure-1.3.0.min.css" />
+    <link rel="stylesheet" href="lib/visualizer-controller.css" />
     <link rel="stylesheet" href="css/controller.css" />
 </head>
 <body>
@@ -20,6 +20,10 @@
 
             <div data-role="fieldcontain">
                 <div id="dominantColor">DOMINANT COLOR</div>
+            </div>
+
+            <div data-role="fieldcontain">
+                <div id="motionScore">MOTION SCORE</div>
             </div>
 
             <div data-role="fieldcontain">
@@ -56,17 +60,19 @@
             </div>
 
             <div data-role="fieldcontain" align="center" style="text-align: center;">
-                <div data-role="controlgroup" data-type="horizontal">
-                    <a href="#" data-role="button" data-icon="check" onclick="submitSettings();">Submit</a>
-                    <a href="#" data-role="button" data-icon="back" onclick="getSettings();">Reset</a>
-                    <a href="#" data-role="button" data-icon="home" onclick="defaultSettings();">Default</a>
+                <a href="#" data-role="button" data-theme="b" data-icon="check" onclick="submitSettings();">Submit</a>
+            </div>
 
+            <div data-role="fieldcontain" align="center" style="text-align: center;">
+                <div data-role="controlgroup" data-type="horizontal">
+                    <a href="#" data-role="button" data-theme="a" data-icon="back" onclick="getSettings();">Reset</a>
+                    <a href="#" data-role="button" data-theme="a" data-icon="home" onclick="defaultSettings();">Default</a>
                 </div>
             </div>
 
             <div data-role="fieldcontain" align="center" style="text-align: center;">
                 <label for="toggleAutoSubmit">Auto Submit</label>
-                <select id="toggleAutoSubmit" name="toggleAutoSubmit" id="flip-1" data-role="slider">
+                <select id="toggleAutoSubmit" data-theme="d" name="toggleAutoSubmit" id="flip-1" data-role="slider">
                   <option value="off">OFF</option>
                   <option value="on">ON</option>
                 </select>
@@ -79,7 +85,7 @@
 
 <script src="lib/jquery-1.9.1.min.js"></script>
 <script src="lib/jquery.mobile-1.3.0.min.js"></script>
-<script src="http://ec2-54-228-30-155.eu-west-1.compute.amazonaws.com:8888/socket.io/socket.io.js"></script>
+<script src="http://obacht.informatik.hs-augsburg.de:8888/socket.io/socket.io.js"></script>
 <script src="../client/default-settings.js"></script>
 <script src="js/controller.js"></script>
 </html>
