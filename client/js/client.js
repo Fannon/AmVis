@@ -24,8 +24,9 @@ var ch = canvas.height;
 var totalPixels = cw * ch;
 var Color = net.brehaut.Color;
 
+var connected = false;
 var pixelArchive = null;
-
+var remoteInformations = {};
 
 /////////////////////////
 // Start this app      //
@@ -53,6 +54,7 @@ socket.on('sucessfull_connected', function () {
     console.log('SUCCESSFUL CONNECTION');
     socket.emit('upload_settings', settings);
     console.log('SENDING DEFAULT SETTINGS...');
+    connected = true;
 });
 
 // On "New Settings" Command from Remote Server: Overwrite own Settings with new ones
@@ -141,7 +143,7 @@ function calculateImageData(pixels) {
     }
 
     pixelArchive = pixels;
-    imageData['motion_score'] = motionScore / totalPixels;
+    imageData['motion_score'] = motionScore / totalPixels; // Average
 
     // Send array to quantize function which clusters values using median cut algorithm
     var cmap = MMCQ.quantize(pixelArray, 5);
@@ -199,6 +201,7 @@ function calculateImageData(pixels) {
         finalDominantColor = finalDominantColor.shiftHue(settings.shiftHue);
     }
 
+    remoteInformations.dominantColor = finalDominantColor;
     imageData['dominant'] = finalDominantColor;
 
 
@@ -218,6 +221,10 @@ function calculateImageData(pixels) {
     imageData['analog'] = analog;
     imageData['analog_custom'] = analog_custom;
     imageData['neutral'] = neutral;
+
+    if (connected) {
+        socket.emit('remote_informations', remoteInformations);
+    }
 
     return imageData;
 

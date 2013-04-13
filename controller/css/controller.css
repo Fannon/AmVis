@@ -15,3 +15,15 @@ button.active {
     /*max-width: 415px;*/
     padding: 7px;
 }
+
+#dominantColor {
+    color: #FFF;
+    text-shadow: 0px 0px 5px #555;
+    text-align: center;
+    width: 100%;
+    padding: 7px;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    -khtml-border-radius: 3px;
+    border-radius: 3px;
+}

@@ -135,6 +135,11 @@ socket.on('new_settings', function (data) {
     writeValues();
 });
 
+socket.on('remote_informations', function(data) {
+    console.log('REMOTE INFORMATIONS RECEIVED');
+    $('#dominantColor').css('background-color', data.dominantColor);
+});
+
 socket.on('msg', function (data) {
     console.log('MESSAGE FROM SERVER: ' + data);
 });

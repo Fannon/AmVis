@@ -23,6 +23,14 @@ io.sockets.on('connection', function(socket) {
 
     });
 
+    // Remote Informations (Current Color, etc.) broadcasting
+    socket.on('remote_informations', function(data) {
+
+        console.log('REMOTE INFORMATIONS RECEIVED');
+        socket.broadcast.emit('remote_informations', data);
+
+    });
+
     // Gets actual Settings from Server
     socket.on('get_settings', function() {
         console.log('SENDING SETTINGS BY REQUEST');

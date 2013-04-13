@@ -17,3 +17,5 @@ settings.shiftHue          = 0;    // 0 to 360
 settings.defaultColorArray = [[0,0,0], [0,0,0], [0,0,0], [0,0,0]];
 settings.webcamoptions     = {video:true, audio:false};
 settings.tryAgainInterval  = 3000; // New attempt to connect every ... ms
+
+settings.currentValues     = {};
