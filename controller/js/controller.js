@@ -108,6 +108,7 @@ function writeValues() {
 // On successfull Connection
 socket.on('sucessfull_connected', function () {
     console.log('SUCCESSFUL CONNECTION');
+    $('#motionScore').text('CONNECTED BUT NO DATA');
     connected = true;
 });
 
