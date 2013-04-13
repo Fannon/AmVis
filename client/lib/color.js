@@ -289,6 +289,9 @@ if (!net.brehaut) { net.brehaut = {}; }
      * or a hexdecimal string it will accept it.
      */
     fromObject: function ( o ) {
+      if (o instanceof Array) {
+        return this._fromRGBArray ( o );
+      }
       if ("string" == typeof o) {
         return this._fromCSS( trim( o ) );
       }
@@ -366,6 +369,16 @@ if (!net.brehaut) { net.brehaut = {}; }
       newRGB.red = RGB.red;
       newRGB.green = RGB.green;
       newRGB.blue = RGB.blue;
+
+      return newRGB;
+    },
+
+    _fromRGBArray: function ( RGB ) {
+      var newRGB = factories.RGB();
+
+      newRGB.red = RGB[0];
+      newRGB.green = RGB[1];
+      newRGB.blue = RGB[2];
 
       return newRGB;
     },

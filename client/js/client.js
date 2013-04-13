@@ -156,11 +156,11 @@ function calculateImageData(pixels) {
     ////////////////////////////////
 
     // Convert RGB Arrays to Color Objects
-    imageData['palette'][0] = Color(rgbToString(palette[0]));
-    imageData['palette'][1] = Color(rgbToString(palette[1]));
-    imageData['palette'][2] = Color(rgbToString(palette[2]));
-    imageData['palette'][3] = Color(rgbToString(palette[3]));
-    imageData['palette'][4] = Color(rgbToString(palette[4]));
+    imageData['palette'][0] = Color(palette[0]);
+    imageData['palette'][1] = Color(palette[1]);
+    imageData['palette'][2] = Color(palette[2]);
+    imageData['palette'][3] = Color(palette[3]);
+    imageData['palette'][4] = Color(palette[4]);
 
 
     ////////////////////////////////
@@ -188,7 +188,7 @@ function calculateImageData(pixels) {
     }
 
     // PostProcessing Color
-    var finalDominantColor = Color(rgbToString(dominantColor));
+    var finalDominantColor = Color(dominantColor);
 
     // Add / Remove Saturation if setting not 0
     if (settings.saturation > 0) {
