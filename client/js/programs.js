@@ -16,7 +16,7 @@ programs.colorpalette = function() {
         var metaDataObject = calculateMetaData();
 
         if (metaDataObject) {
-            debugColors(metaDataObject['colors']);
+            debugColors(metaDataObject['image']);
         }
 
     }, settings.interval); // For Fast Realtime-Preview
@@ -28,43 +28,42 @@ programs.colorpalette = function() {
 ///////////////////////
 
 /**
- * Debugging Funktion die das berechnete ColorObject mit farbigen DIVs visuell darstellt
+ * Debugging Funktion die das berechnete imageData mit farbigen DIVs visuell darstellt
  *
- * @param  {object} colorObject
+ * @param  {object} imageData
  */
-function debugColors(colorObject) {
+function debugColors(imageData) {
 
 
     var html = '<div id="colordebug">';
 
-    html += '<div style="background-color: ' + colorObject.dominant.toCSS() + '">DOMINANT</div><br>';
+    html += '<div style="background-color: #000">Motion Score: ' + imageData.motion_score + '</div><br>';
 
-    // html += '<div style="background-color: ' + colorObject.dominant_avg.toCSS() + '">DOMINANT AVG</div><br>';
+    html += '<div style="background-color: ' + imageData.dominant.toCSS() + '">DOMINANT</div><br>';
 
-
-    for (var j = 0; j < colorObject.palette.length; j++) {
-        html += '<div style="background-color: ' + colorObject.palette[j].toCSS() + '">PALETTE</div>';
+    for (var j = 0; j < imageData.palette.length; j++) {
+        html += '<div style="background-color: ' + imageData.palette[j].toCSS() + '">PALETTE</div>';
     }
 
     html += '<br>';
 
-    for (j = 0; j < colorObject.analog_custom.length; j++) {
-        html += '<div style="background-color: ' + colorObject.analog_custom[j].toCSS() + '">ANALOG CUSTOM</div>';
+    for (j = 0; j < imageData.analog_custom.length; j++) {
+        html += '<div style="background-color: ' + imageData.analog_custom[j].toCSS() + '">ANALOG CUSTOM</div>';
     }
 
     html += '<br>';
 
-    for (j = 0; j < colorObject.analog.length; j++) {
-        html += '<div style="background-color: ' + colorObject.analog[j].toCSS() + '">ANALOG</div>';
+    for (j = 0; j < imageData.analog.length; j++) {
+        html += '<div style="background-color: ' + imageData.analog[j].toCSS() + '">ANALOG</div>';
     }
 
     html += '<br>';
 
-    for (j = 0; j < colorObject.neutral.length; j++) {
-        html += '<div style="background-color: ' + colorObject.neutral[j].toCSS() + '">NEUTRAL</div>';
+    for (j = 0; j < imageData.neutral.length; j++) {
+        html += '<div style="background-color: ' + imageData.neutral[j].toCSS() + '">NEUTRAL</div>';
     }
 
-    // html += '<br><div style="background-color: rgba(' + colorObject.negate[0] + ',' + colorObject.negate[1] + ',' +colorObject.negate[2] + ', 1.0)">COMPLEMENT</div>';
+    // html += '<br><div style="background-color: rgba(' + imageData.negate[0] + ',' + imageData.negate[1] + ',' +imageData.negate[2] + ', 1.0)">COMPLEMENT</div>';
 
     html += '</div>';
 

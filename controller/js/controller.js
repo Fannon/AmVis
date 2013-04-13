@@ -1,6 +1,9 @@
 /**
  * HTML5 Visualizer Remote Controller
  *
+ * // TODO: Show actual dominant color
+ * // TODO: Just send / receive essential parameters
+ *
  * @author Simon Heimler
  */
 

@@ -6,7 +6,6 @@
  *
  * Uses https://github.com/brehaut/color-js for Color Management
  *
- *
  * @author Simon Heimler
  * @author Sebastian Huber
  */
@@ -22,13 +21,29 @@ var localMediaStream = null;
 var ctx = canvas.getContext('2d');
 var cw = canvas.width;
 var ch = canvas.height;
-var pixelCount = cw*ch;
+var totalPixels = cw * ch;
 var Color = net.brehaut.Color;
-var colorRingBuffer = settings.defaultColorArray;
+
+var pixelArchive = null;
 
 
 /////////////////////////
-// Receive Controlling //
+// Start this app      //
+/////////////////////////
+
+jQuery(document).ready(function() {
+
+    // Get Webcam Stream starting
+    enableWebcamStream(video);
+
+    // Start default program
+    programs.colorpalette();
+
+});
+
+
+/////////////////////////
+// Remote Control      //
 /////////////////////////
 
 var socket = io.connect(settings.serverUrl);
@@ -47,20 +62,6 @@ socket.on('new_settings', function (data) {
     settings = data;
 });
 
-/////////////////////////
-// Start this app      //
-/////////////////////////
-
-jQuery(document).ready(function() {
-
-    // Get Webcam Stream starting
-    enableWebcamStream(video);
-
-    // Start default program
-    programs.colorpalette();
-
-});
-
 
 /////////////////////////
 // Processing Stream   //
@@ -68,7 +69,7 @@ jQuery(document).ready(function() {
 
 /**
  * Draws current WebCam Frame to 2D Canvas
- * Calculates Metadata from actual videoframe
+ * Calculates Metadata from media input
  */
 var calculateMetaData = function() {
 
@@ -79,9 +80,9 @@ var calculateMetaData = function() {
         // draw image according to canvas width and height
         ctx.drawImage(video, 0, 0, cw, ch);
 
-        // Get Color Metadata
+        // Get Image Metadata
         var pixels = ctx.getImageData(0, 0, cw, ch).data; // Gets Pixeldata from Image
-        metaDataObject['colors'] = calculateColors(pixels, pixelCount);
+        metaDataObject['image'] = calculateImageData(pixels);
 
         return metaDataObject;
 
@@ -96,30 +97,51 @@ var calculateMetaData = function() {
 ///////////////////////
 
 /**
- * Calculates the ColorObject which contains Color Informations about the current Frame
+ * Calculates the imageData Object which contains Color Informations about the current Frame
  *
  * Uses quantize.js Copyright 2008 Nick Rabinowitz.
  * Uses codesnippet from: https://github.com/lokesh/color-thief
  *
  * @param  {array}      pixels     Pixel Array from Canvas
- * @param  {integer}    pixelCount Total Number of Canvas Pixels
  * @return {object}     Object with Color Informations
  */
-function calculateColors(pixels, pixelCount) {
+function calculateImageData(pixels) {
 
-    var colorObject = {
+    if (!pixelArchive) {
+        pixelArchive = pixels;
+    }
+
+    var imageData = {
         'palette': []
     };
     var pixelArray = [];
     var dominantColor;
+    var motionScore = 0;
 
-    for (var i = 0; i < pixelCount; i++) {
+    // Looping over Pixel Array, takes 4 steps (rgba) with each iteration
+    var i = 0;
+    while (i < pixels.length) {
 
-        // Just take Pixels that are not too bright or too dark
-        if(!(pixels[i*4] > settings.maxBrightness && pixels[i*4+1] > settings.maxBrightness && pixels[i*4+2] > settings.maxBrightness) && pixels[i*4] > settings.minBrightness && pixels[i*4+1] > settings.minBrightness && pixels[i*4+2] > settings.minBrightness){
-            pixelArray.push( [pixels[i*4], pixels[i*4+1], pixels[i*4+2]]);
+        var r = pixels[i];
+        var g = pixels[i+1];
+        var b = pixels[i+2];
+        // Alpha (pixels[i+3]) is ignored
+
+        // Put every interesting Pixel into the pixelArray which will be quantized for calculating the Color Palette
+        if(!(r > settings.maxBrightness && g > settings.maxBrightness && b > settings.maxBrightness) &&
+            r > settings.minBrightness && g > settings.minBrightness && b > settings.minBrightness) {
+            pixelArray.push([r,g,b]);
         }
+
+        // Calculate Motion Score
+        var motionDiff = fastAbs(pixelArchive[i] - r) + fastAbs(pixelArchive[i+1] - g) + fastAbs(pixelArchive[i+2] - b);
+        motionScore += motionDiff/3;
+
+        i += 4;
     }
+
+    pixelArchive = pixels;
+    imageData['motion_score'] = motionScore / totalPixels;
 
     // Send array to quantize function which clusters values using median cut algorithm
     var cmap = MMCQ.quantize(pixelArray, 5);
@@ -131,11 +153,11 @@ function calculateColors(pixels, pixelCount) {
     ////////////////////////////////
 
     // Convert RGB Arrays to Color Objects
-    colorObject['palette'][0] = Color(rgbToString(palette[0]));
-    colorObject['palette'][1] = Color(rgbToString(palette[1]));
-    colorObject['palette'][2] = Color(rgbToString(palette[2]));
-    colorObject['palette'][3] = Color(rgbToString(palette[3]));
-    colorObject['palette'][4] = Color(rgbToString(palette[4]));
+    imageData['palette'][0] = Color(rgbToString(palette[0]));
+    imageData['palette'][1] = Color(rgbToString(palette[1]));
+    imageData['palette'][2] = Color(rgbToString(palette[2]));
+    imageData['palette'][3] = Color(rgbToString(palette[3]));
+    imageData['palette'][4] = Color(rgbToString(palette[4]));
 
 
     ////////////////////////////////
@@ -177,33 +199,7 @@ function calculateColors(pixels, pixelCount) {
         finalDominantColor = finalDominantColor.shiftHue(settings.shiftHue);
     }
 
-    colorObject['dominant'] = finalDominantColor;
-
-    ////////////////////////////////
-    // Calculate Dominant Average //
-    ////////////////////////////////
-
-    // TODO: Use a Ringbuffer for this
-
-    // colorRingBuffer[3] = colorRingBuffer[2];
-    // colorRingBuffer[2] = colorRingBuffer[1];
-    // colorRingBuffer[1] = colorRingBuffer[0];
-    // colorRingBuffer[0] = dominantColor;
-
-    // var r = 0;
-    // var g = 0;
-    // var b = 0;
-    // for (i = 0; i < colorRingBuffer.length; i++) {
-
-    //     // console.log(colorRingBuffer[i]);
-
-    //     r += colorRingBuffer[i][0];
-    //     g += colorRingBuffer[i][1];
-    //     b += colorRingBuffer[i][2];
-    // }
-    // avg = [Math.round(r/colorRingBuffer.length), Math.round(g/colorRingBuffer.length), Math.round(b/colorRingBuffer.length)];
-
-    // colorObject['dominant_avg'] = finalDominantColor;
+    imageData['dominant'] = finalDominantColor;
 
 
     ////////////////////////////////
@@ -219,11 +215,11 @@ function calculateColors(pixels, pixelCount) {
     var listOfdegrees = [-2 * settings.analogAngle, -settings.analogAngle, 0, settings.analogAngle, 2*settings.analogAngle];
     var analog_custom = finalDominantColor.schemeFromDegrees(listOfdegrees);
 
-    colorObject['analog'] = analog;
-    colorObject['analog_custom'] = analog_custom;
-    colorObject['neutral'] = neutral;
+    imageData['analog'] = analog;
+    imageData['analog_custom'] = analog_custom;
+    imageData['neutral'] = neutral;
 
-    return colorObject;
+    return imageData;
 
 }
 
@@ -331,4 +327,13 @@ CircularBuffer.prototype.getAvg = function(){
  */
 function rgbToString(rgbArray) {
     return 'rgb(' + rgbArray[0] + ', ' + rgbArray[1] + ', ' + rgbArray[2] + ')';
+}
+
+/**
+ * Fast Absolute Calculation
+ * http://www.adobe.com/devnet/html5/articles/javascript-motion-detection.html
+ */
+function fastAbs(value) {
+    // equivalent to Math.abs();
+    return (value ^ (value >> 31)) - (value >> 31);
 }
