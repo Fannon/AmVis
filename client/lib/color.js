@@ -31,7 +31,7 @@
 // HSL support kindly provided by Tim Baumann - http://github.com/timjb
 
 // create namespaces
-/*global net */
+/*global net module */
 if ("undefined" == typeof net) { var net = {}; }
 if (!net.brehaut) { net.brehaut = {}; }
 
@@ -407,7 +407,7 @@ if (!net.brehaut) { net.brehaut = {}; }
 
       delta = max - min;
 
-      if( delta == 0 ) { // white, grey, black
+      if( delta === 0 ) { // white, grey, black
         hsv.hue = hsv.saturation = 0;
       }
       else { // chroma
@@ -768,10 +768,10 @@ if (!net.brehaut) { net.brehaut = {}; }
     return color.fromObject( o );
   }
   Color.isValid = function( str ) {
-    var c = Color( str );
+    var c = new Color( str );
 
     var length = 0;
-    for(key in c) {
+    for(var key in c) {
       if(c.hasOwnProperty(key)) {
         length++;
       }

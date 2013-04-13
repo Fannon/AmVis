@@ -95,7 +95,7 @@ var calculateMetaData = function() {
 
 
 ///////////////////////
-// Helper Functions ///
+// Calculate Data    //
 ///////////////////////
 
 /**
@@ -230,6 +230,11 @@ function calculateImageData(pixels) {
     return imageData;
 
 }
+
+
+///////////////////////
+// Helper Functions  //
+///////////////////////
 
 /**
  * Cross Browser Shim for HTML5 Webcam Input
