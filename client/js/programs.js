@@ -34,6 +34,8 @@ programs.colorpalette = function() {
  */
 function debugColors(imageData) {
 
+    console.log(imageData);
+
 
     var html = '<div id="colordebug">';
 

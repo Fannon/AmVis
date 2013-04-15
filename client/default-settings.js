@@ -5,7 +5,7 @@ settings.set               = true;
 settings.serverUrl         = 'http://obacht.informatik.hs-augsburg.de:8888';
 
 // Visual Settings
-settings.interval          = 200;  // in ms
+settings.interval          = 1000;  // in ms
 settings.analogAngle       = 20;    // Rotation Degree for calculating analog palette
 settings.maxBrightness     = 100;   // 0 to 255
 settings.minBrightness     = 20;    // 0 to 255
