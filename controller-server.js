@@ -22,7 +22,12 @@ var io       = require('socket.io').listen(server);
 var port     = 8888;
 var settings = {};
 
+//////////////////////////////
+// Startup                  //
+//////////////////////////////
+
 server.listen(port);
+console.log('### Server listening on Port ' + port + ' ###');
 
 
 //////////////////////////////
