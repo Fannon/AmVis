@@ -5,25 +5,25 @@
     <title>HTML5 Ambient Visualizer</title>
     <link rel="stylesheet" href="css/client.css" />
 </head>
+
 <body>
+    <div align="center">
+        <video autoplay id="video" width="320" height="240" style="display:none;"></video>
+    </div>
 
-<div align="center">
-    <video autoplay id="video" width="320" height="240" style="display:none;"></video>
-</div>
+    <canvas id="canvas" width="320" height="240"></canvas>
 
-<canvas id="canvas" width="320" height="240"></canvas>
-
-<br><br>
-<div id="colors" align="center"></div>
-
+    <br><br>
+    <div id="colors" align="center"></div>
 </body>
 
 <script src="lib/jquery-1.9.1.min.js"></script>
 <script src="lib/quantize.js"></script>
 <script src="lib/color.js"></script>
-<script src="http://obacht.informatik.hs-augsburg.de:8888/socket.io/socket.io.js"></script>
+<script src="/socket.io/socket.io.js"></script>
 
-<script src="default-settings.js"></script>
-<script src="js/programs.js"></script>
+<script src="../default-settings.js"></script>
 <script src="js/client.js"></script>
+<script src="js/programs.js"></script>
+
 </html>

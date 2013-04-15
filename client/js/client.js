@@ -51,16 +51,16 @@ var socket = io.connect(settings.serverUrl);
 
 // On successfull Connection with Remote Server: Upload current (default) Settings
 socket.on('sucessfull_connected', function () {
-    console.log('SUCCESSFUL CONNECTION');
+    // console.log('SUCCESSFUL CONNECTION');
     socket.emit('upload_settings', settings);
-    console.log('SENDING DEFAULT SETTINGS...');
+    // console.log('SENDING DEFAULT SETTINGS...');
     connected = true;
 });
 
 // On "New Settings" Command from Remote Server: Overwrite own Settings with new ones
 socket.on('new_settings', function (data) {
-    console.log('NEW SETTINGS RECEIVED');
-    console.dir(data);
+    // console.log('NEW SETTINGS RECEIVED');
+    // console.dir(data);
     settings = data;
 });
 

@@ -34,9 +34,6 @@ programs.colorpalette = function() {
  */
 function debugColors(imageData) {
 
-    console.log(imageData);
-
-
     var html = '<div id="colordebug">';
 
     html += '<div style="background-color: #000">Motion Score: ' + imageData.motion_score + '</div><br>';
@@ -64,8 +61,6 @@ function debugColors(imageData) {
     for (j = 0; j < imageData.neutral.length; j++) {
         html += '<div style="background-color: ' + imageData.neutral[j].toCSS() + '">NEUTRAL</div>';
     }
-
-    // html += '<br><div style="background-color: rgba(' + imageData.negate[0] + ',' + imageData.negate[1] + ',' +imageData.negate[2] + ', 1.0)">COMPLEMENT</div>';
 
     html += '</div>';
 

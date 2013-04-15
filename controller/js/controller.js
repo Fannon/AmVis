@@ -7,21 +7,21 @@
  * @author Simon Heimler
  */
 
-
 /////////////////////////
 // Variables           //
 /////////////////////////
 
-var controller = {};
 var socket = io.connect(settings.serverUrl);
+
+var controller = {};
 controller.tryAgainInterval = settings.tryAgainInterval;
 controller.connected = false;
 controller.ready = false;
 controller.autoSubmit = false;
 controller.autoSubmitInterval = settings.interval;
-
 controller.defaultSettings = settings;
 controller.settings = {}; // Discard Settings
+
 
 /////////////////////////
 // Startup             //
@@ -38,6 +38,10 @@ jQuery(document).ready(function() {
             submitSettings();
         }
     }, controller.autoSubmitInterval);
+
+    if (!io) {
+        $('#motionScore').text('WARNING: NO SOCKET CONNECTION!');
+    }
 
 });
 
@@ -61,7 +65,6 @@ function defaultSettings() {
 }
 
 function toggleAutoSubmit() {
-
     if ($('#toggleAutoSubmit').hasClass('active')) {
         $('#toggleAutoSubmit').removeClass('active');
         controller.autoSubmit = false;
@@ -69,12 +72,9 @@ function toggleAutoSubmit() {
         $('#toggleAutoSubmit').addClass('active');
         controller.autoSubmit = true;
     }
-
-
 }
 
 function readValues() {
-
     var saturation = $('#saturation').val();
     var hue = $('#hue').val();
     minBrightness = $('#minBrightness').val();
@@ -107,7 +107,6 @@ function writeValues() {
 
 // On successfull Connection
 socket.on('sucessfull_connected', function () {
-    console.log('SUCCESSFUL CONNECTION');
     $('#motionScore').text('CONNECTED BUT NO DATA');
     connected = true;
 });
@@ -116,7 +115,6 @@ socket.on('sucessfull_connected', function () {
 socket.on('current_settings', function (data) {
 
     if (data.set) {
-        console.log('NEW SETTINGS RECEIVED');
         controller.ready = true;
     } else {
         console.log('NO SETTINGS ON SERVER! TRYING AGAIN IN ' + controller.tryAgainInterval + ' MS');
@@ -129,9 +127,6 @@ socket.on('current_settings', function (data) {
 
 // On incoming Settings from Server
 socket.on('new_settings', function (data) {
-
-    console.log('NEW SETTINGS RECEIVED');
-
     controller.settings = data;
     writeValues();
 });
@@ -143,5 +138,5 @@ socket.on('remote_informations', function(data) {
 });
 
 socket.on('msg', function (data) {
-    console.log('MESSAGE FROM SERVER: ' + data);
+    // console.log('MESSAGE FROM SERVER: ' + data);
 });
