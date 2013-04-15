@@ -9,40 +9,42 @@
 //////////////////////////////
 // Import Modules           //
 //////////////////////////////
-var express  = require("express");
-var app      = express();
-var server   = require('http').createServer(app);
-var io       = require('socket.io').listen(server);
+
+var express = require("express");
+var app = express();
+var server = require('http').createServer(app);
+var io = require('socket.io').listen(server);
 
 
 //////////////////////////////
 // Variables and Settings   //
 //////////////////////////////
 
-var port     = 8888;
+var port = (process.argv[2] ? process.argv[2] : 8888); // Use
 var settings = {};
+
 
 //////////////////////////////
 // Startup                  //
 //////////////////////////////
 
 server.listen(port);
-console.log('### Server listening on Port ' + port + ' ###');
+console.log('### SERVER LISTENING ON PORT ' + port);
 
 
 //////////////////////////////
 // Express Configuration    //
 //////////////////////////////
 
-app.configure(function(){
-  app.use(express.methodOverride());
-  app.use(express.bodyParser());
-  app.use(express.static(__dirname + ''));
-  app.use(express.errorHandler({
-    dumpExceptions: true,
-    showStack: true
-  }));
-  app.use(app.router);
+app.configure(function() {
+    app.use(express.methodOverride());
+    app.use(express.bodyParser());
+    app.use(express.static(__dirname + ''));
+    app.use(express.errorHandler({
+        dumpExceptions: true,
+        showStack: true
+    }));
+    app.use(app.router);
 });
 
 
@@ -50,39 +52,48 @@ app.configure(function(){
 // Socket.io Configuration  //
 //////////////////////////////
 
+// Configuration
+io.enable('browser client minification'); // send minified client
+io.enable('browser client etag'); // apply etag caching logic based on version number
+io.enable('browser client gzip'); // gzip the file
+io.set('log level', 1); // reduce logging
+
+// Connection Handling
 io.sockets.on('connection', function(socket) {
+
+    console.log('+++ NEW REMOTE CONNECTION');
 
     // On new Connection: Send Success Message
     socket.emit('sucessfull_connected', 'Sucessfully Connected!');
 
-    // On Settings uploaded: Write them and
+    // On Settings uploaded: Write them and broadcast to other connected Controllers/Clients
     socket.on('upload_settings', function(data) {
-
-        console.log('NEW SETTINGS RECEIVED');
-
-        console.log(settings);
-
+        // console.log('<-- NEW SETTINGS INCOMING');
         settings = data;
-
-        console.log('SENDING SETTINGS BY PUSH');
         socket.broadcast.emit('new_settings', data);
-
         socket.emit('msg', 'Settings Sucessfully Uploaded');
 
     });
 
-    // Remote Informations (Current Color, etc.) broadcasting
+    // Remote Informations from Client (Current Color, etc.) broadcasting to Controllers
     socket.on('remote_informations', function(data) {
-
-        console.log('REMOTE INFORMATIONS RECEIVED');
         socket.broadcast.emit('remote_informations', data);
-
     });
 
     // Gets actual Settings from Server
     socket.on('get_settings', function() {
-        console.log('SENDING SETTINGS BY REQUEST');
+        // console.log('--> SENDING SETTINGS BY REQUEST');
         socket.emit('current_settings', settings);
     });
 
+    socket.on('disconnect', function() {
+        console.log('--- DISCONNECT FROM REMOTE');
+    } );
+
 });
+
+
+//////////////////////////////
+// Helper Functions         //
+//////////////////////////////
+
