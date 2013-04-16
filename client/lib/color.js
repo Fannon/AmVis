@@ -22,7 +22,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-// color.js - version 0.5
+// color.js - version 0.6
 //
 // HSV <-> RGB code based on code from http://www.cs.rit.edu/~ncs/color/t_convert.html
 // object function created by Douglas Crockford.
@@ -31,7 +31,7 @@
 // HSL support kindly provided by Tim Baumann - http://github.com/timjb
 
 // create namespaces
-/*global net module */
+/*global net */
 if ("undefined" == typeof net) { var net = {}; }
 if (!net.brehaut) { net.brehaut = {}; }
 
@@ -376,16 +376,25 @@ if (!net.brehaut) { net.brehaut = {}; }
     _fromRGBArray: function ( RGB ) {
       var newRGB = factories.RGB();
 
-      newRGB.red = RGB[0];
-      newRGB.green = RGB[1];
-      newRGB.blue = RGB[2];
+      newRGB.red = Math.max(0, Math.min(1, RGB[0] / 255));
+      newRGB.green = Math.max(0, Math.min(1, RGB[1] / 255));
+      newRGB.blue = Math.max(0, Math.min(1, RGB[2] / 255));
 
       return newRGB;
     },
 
-    // convert to a "rgb()" CSS string. defaults to two bytes a value
+    // convert to a CSS string. defaults to two bytes a value
     toCSS: function ( bytes ) {
-      return 'rgb(' +  Math.round(this.red) + ', ' +  Math.round(this.green) + ', ' +  Math.round(this.blue) + ')';
+      bytes = bytes || 2;
+      var max = Math.pow(16, bytes) - 1;
+      var css = [
+        "#",
+        pad ( Math.round(this.red * max).toString( 16 ).toUpperCase(), bytes ),
+        pad ( Math.round(this.green * max).toString( 16 ).toUpperCase(), bytes ),
+        pad ( Math.round(this.blue * max).toString( 16 ).toUpperCase(), bytes )
+      ];
+
+      return css.join('');
     },
 
     toHSV: function ( ) {
@@ -398,7 +407,7 @@ if (!net.brehaut) { net.brehaut = {}; }
 
       delta = max - min;
 
-      if( delta === 0 ) { // white, grey, black
+      if( delta == 0 ) { // white, grey, black
         hsv.hue = hsv.saturation = 0;
       }
       else { // chroma
@@ -759,10 +768,10 @@ if (!net.brehaut) { net.brehaut = {}; }
     return color.fromObject( o );
   }
   Color.isValid = function( str ) {
-    var c = new Color( str );
+    var c = Color( str );
 
     var length = 0;
-    for(var key in c) {
+    for(key in c) {
       if(c.hasOwnProperty(key)) {
         length++;
       }

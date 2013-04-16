@@ -102,7 +102,6 @@ var calculateMetaData = function() {
  * Calculates the imageData Object which contains Color Informations about the current Frame
  *
  * Uses quantize.js Copyright 2008 Nick Rabinowitz.
- * Uses codesnippet from: https://github.com/lokesh/color-thief
  *
  * @param  {array}      pixels     Pixel Array from Canvas
  * @return {object}     Object with Color Informations
@@ -170,7 +169,7 @@ function calculateImageData(pixels) {
     dominantColor = palette[0];
 
     // Using a "Diff Score" to guess which Color is most interesting
-    // Also this takes care of too greyish colors that produce a very boring analogue palette
+    // Also this takes care of too greyish colors that produce very boring palettes
     if (settings.minColorfulness !== 0) {
         for (var j = 0; j < palette.length; j++) {
 
@@ -183,7 +182,6 @@ function calculateImageData(pixels) {
                 dominantColor = palette[j];
                 break;
             }
-            // console.log('DIFF Score: ' + diff + ' bei #' + j);
         }
     }
 
