@@ -20,7 +20,7 @@ var io = require('socket.io').listen(server);
 // Variables and Settings   //
 //////////////////////////////
 
-var port = (process.argv[2] ? process.argv[2] : 8888); // Use
+var port = (process.argv[2] ? process.argv[2] : 8888); // Use Console Argument if there
 var settings = {};
 
 
@@ -60,6 +60,7 @@ io.set('log level', 1); // reduce logging
 
 // Connection Handling
 io.sockets.on('connection', function(socket) {
+
 
     console.log('+++ NEW REMOTE CONNECTION');
 

@@ -4,6 +4,7 @@
  * Uses Webcam to analyse current Colors of the envirionment
  * and generates matching WebGL Visualisations
  *
+ * Uses https://gist.github.com/nrabinowitz/1104622 for Color Quantizing
  * Uses https://github.com/brehaut/color-js for Color Management
  *
  * @author Simon Heimler

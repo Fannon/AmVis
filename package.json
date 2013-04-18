@@ -10,7 +10,7 @@
     }
   ],
   "scripts": {
-    "start": "node controller-server.js"
+    "start": "node amvis-server.js"
   },
   "repository": {
     "type": "git",
