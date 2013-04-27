@@ -58,9 +58,12 @@ io.enable('browser client etag'); // apply etag caching logic based on version n
 io.enable('browser client gzip'); // gzip the file
 io.set('log level', 1); // reduce logging
 
-// Connection Handling
-io.sockets.on('connection', function(socket) {
 
+//////////////////////////////
+// Socket.io Communication  //
+//////////////////////////////
+
+io.sockets.on('connection', function(socket) {
 
     console.log('+++ NEW REMOTE CONNECTION');
 

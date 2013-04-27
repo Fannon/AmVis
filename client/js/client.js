@@ -16,6 +16,8 @@
 // Variables           //
 /////////////////////////
 
+var amvis = {}; // Global Namespace
+
 var video = document.querySelector("#video");
 var canvas = document.querySelector('#canvas');
 var localMediaStream = null;
@@ -38,8 +40,7 @@ jQuery(document).ready(function() {
     // Get Webcam Stream starting
     enableWebcamStream(video);
 
-    // Start default program
-    programs.colorpalette();
+    visualisation.setForeground('colorpalette');
 
 });
 
@@ -121,8 +122,10 @@ function calculateImageData(pixels) {
     var motionScore = 0;
 
     // Looping over Pixel Array, takes 4 steps (rgba) with each iteration
+    // while loop with i and n cached: http://jsperf.com/fors-vs-while/58
     var i = 0;
-    while (i < pixels.length) {
+    var n = pixels.length;
+    while (i < n) {
 
         var r = pixels[i];
         var g = pixels[i+1];
