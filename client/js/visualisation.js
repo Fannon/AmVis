@@ -1,3 +1,5 @@
+/* global amvis */
+
 /////////////////////////
 // Variables           //
 /////////////////////////
@@ -5,44 +7,43 @@
 /**
  * Global Namespace, Singleton
  */
-var visualisation = {};
-visualisation.programs = {};
+amvis.visualisation = {};
+amvis.visualisation.programs = {};
 
 /**
  * Array with available Foreground Programs
  * @type {Array}
  */
-visualisation.availablePrograms = [
+amvis.visualisation.availablePrograms = [
     'simpleBackground',
     'colorpalette'
 ];
-
 
 
 ////////////////////////////
 // Visualisation Handling //
 ////////////////////////////
 
-visualisation.setProgram = function(program) {
+amvis.visualisation.setProgram = function(program) {
     // TODO: Check if available
 
     // TODO: Stop old Program
-    visualisation.stopCurrentProgram();
+    amvis.visualisation.stopCurrentProgram();
 
     // Start new Program
-    visualisation.programs[visualisation.foreground]();
-    visualisation.currentProgram = program;
+    amvis.visualisation.currentProgram = program;
+    amvis.visualisation.programs[amvis.visualisation.currentProgram]();
 };
 
-visualisation.stopCurrentProgram = function() {
+amvis.visualisation.stopCurrentProgram = function() {
     // TODO: Stop current Program
-}
+};
 
 
-visualisation.setBackground = function(program) {
+amvis.visualisation.setBackground = function(program) {
     // TODO: Check if available
-    visualisation.background = program;
-    visualisation.programs[visualisation.background]();
+    amvis.visualisation.background = program;
+    amvis.visualisation.programs[amvis.visualisation.background]();
 };
 
 
@@ -56,10 +57,11 @@ visualisation.setBackground = function(program) {
  *
  * @author Simon Heimler
  */
-visualisation.programs.colorpalette = function() {
+amvis.visualisation.programs.colorpalette = function() {
 
     setInterval(function(){
-        var metaDataObject = calculateMetaData();
+        var metaDataObject = amvis.calculateMetaData();
+        // console.log(metaDataObject);
 
         if (metaDataObject) {
             var imageData = metaDataObject['image'];
@@ -96,7 +98,7 @@ visualisation.programs.colorpalette = function() {
             $('#colors').html(html);
         }
 
-    }, settings.interval); // For Fast Realtime-Preview
+    }, amvis.settings.interval); // For Fast Realtime-Preview
 
 };
 

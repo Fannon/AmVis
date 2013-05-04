@@ -1,3 +1,5 @@
+/* global amvis */
+
 /**
  * HTML5 Ambient Visualizer
  *
@@ -16,20 +18,19 @@
 // Variables           //
 /////////////////////////
 
-var amvis = {}; // Global Namespace
-
-var video = document.querySelector("#video");
-var canvas = document.querySelector('#canvas');
-var localMediaStream = null;
-var ctx = canvas.getContext('2d');
-var cw = canvas.width;
-var ch = canvas.height;
-var totalPixels = cw * ch;
 var Color = net.brehaut.Color;
 
-var connected = false;
-var pixelArchive = null;
-var remoteInformations = {};
+amvis.video = document.querySelector("#video");
+amvis.canvas = document.querySelector('#canvas');
+amvis.localMediaStream = null;
+amvis.ctx = amvis.canvas.getContext('2d');
+amvis.cw = amvis.canvas.width;
+amvis.ch = amvis.canvas.height;
+amvis.totalPixels = amvis.cw * amvis.ch;
+
+amvis.connected = false;
+amvis.pixelArchive = null;
+amvis.remoteInformations = {};
 
 /////////////////////////
 // Start this app      //
@@ -38,9 +39,8 @@ var remoteInformations = {};
 jQuery(document).ready(function() {
 
     // Get Webcam Stream starting
-    enableWebcamStream(video);
-
-    visualisation.setForeground('colorpalette');
+    amvis.enableWebcamStream(amvis.video);
+    amvis.visualisation.setProgram('colorpalette');
 
 });
 
@@ -49,21 +49,21 @@ jQuery(document).ready(function() {
 // Remote Control      //
 /////////////////////////
 
-var socket = io.connect(settings.serverUrl);
+amvis.socket = io.connect(amvis.settings.serverUrl);
 
 // On successfull Connection with Remote Server: Upload current (default) Settings
-socket.on('sucessfull_connected', function () {
+amvis.socket.on('sucessfull_connected', function () {
     // console.log('SUCCESSFUL CONNECTION');
-    socket.emit('upload_settings', settings);
+    amvis.socket.emit('upload_settings', amvis.settings);
     // console.log('SENDING DEFAULT SETTINGS...');
     connected = true;
 });
 
 // On "New Settings" Command from Remote Server: Overwrite own Settings with new ones
-socket.on('new_settings', function (data) {
+amvis.socket.on('new_settings', function (data) {
     // console.log('NEW SETTINGS RECEIVED');
     // console.dir(data);
-    settings = data;
+    amvis.settings = data;
 });
 
 
@@ -75,23 +75,23 @@ socket.on('new_settings', function (data) {
  * Draws current WebCam Frame to 2D Canvas
  * Calculates Metadata from media input
  */
-var calculateMetaData = function() {
+amvis.calculateMetaData = function() {
 
-    if (localMediaStream) {
+    if (amvis.localMediaStream) {
 
         var metaDataObject = {};
 
         // draw image according to canvas width and height
-        ctx.drawImage(video, 0, 0, cw, ch);
+        amvis.ctx.drawImage(amvis.video, 0, 0, amvis.cw, amvis.ch);
 
         // Get Image Metadata
-        var pixels = ctx.getImageData(0, 0, cw, ch).data; // Gets Pixeldata from Image
-        metaDataObject['image'] = calculateImageData(pixels);
+        var pixels = amvis.ctx.getImageData(0, 0, amvis.cw, amvis.ch).data; // Gets Pixeldata from Image
+        metaDataObject['image'] = amvis.calculateImageData(pixels);
 
         return metaDataObject;
 
     } else {
-        cameraFail('No localMediaStream');
+        amvis.cameraFail('No localMediaStream');
     }
 };
 
@@ -108,10 +108,10 @@ var calculateMetaData = function() {
  * @param  {array}      pixels     Pixel Array from Canvas
  * @return {object}     Object with Color Informations
  */
-function calculateImageData(pixels) {
+amvis.calculateImageData = function(pixels) {
 
-    if (!pixelArchive) {
-        pixelArchive = pixels;
+    if (!amvis.pixelArchive) {
+        amvis.pixelArchive = pixels;
     }
 
     var imageData = {
@@ -133,21 +133,21 @@ function calculateImageData(pixels) {
         // Alpha (pixels[i+3]) is ignored
 
         // Put every interesting Pixel into the pixelArray which will be quantized for calculating the Color Palette
-        if(!(r > settings.maxBrightness && g > settings.maxBrightness && b > settings.maxBrightness) &&
-            r > settings.minBrightness && g > settings.minBrightness && b > settings.minBrightness) {
+        if(!(r > amvis.settings.maxBrightness && g > amvis.settings.maxBrightness && b > amvis.settings.maxBrightness) &&
+            r > amvis.settings.minBrightness && g > amvis.settings.minBrightness && b > amvis.settings.minBrightness) {
             pixelArray.push([r,g,b]);
         }
 
         // Calculate Motion Score
-        var motionDiff = fastAbs(pixelArchive[i] - r) + fastAbs(pixelArchive[i+1] - g) + fastAbs(pixelArchive[i+2] - b);
+        var motionDiff = amvis.fastAbs(amvis.pixelArchive[i] - r) + amvis.fastAbs(amvis.pixelArchive[i+1] - g) + amvis.fastAbs(amvis.pixelArchive[i+2] - b);
         motionScore += motionDiff/3;
 
         i += 4;
     }
 
-    pixelArchive = pixels;
-    imageData['motion_score'] = Math.round((motionScore / totalPixels) * 100) / 100;
-    remoteInformations.motionScore = imageData['motion_score'];
+    amvis.pixelArchive = pixels;
+    imageData['motion_score'] = Math.round((motionScore / amvis.totalPixels) * 100) / 100;
+    amvis.remoteInformations.motionScore = imageData['motion_score'];
 
     // Send array to quantize function which clusters values using median cut algorithm
     var cmap = MMCQ.quantize(pixelArray, 5);
@@ -174,7 +174,7 @@ function calculateImageData(pixels) {
 
     // Using a "Diff Score" to guess which Color is most interesting
     // Also this takes care of too greyish colors that produce very boring palettes
-    if (settings.minColorfulness !== 0) {
+    if (amvis.settings.minColorfulness !== 0) {
         for (var j = 0; j < palette.length; j++) {
 
             var diff = 0;
@@ -182,7 +182,7 @@ function calculateImageData(pixels) {
             diff += Math.abs(palette[j][0] - palette[j][2]);
             diff += Math.abs(palette[j][1] - palette[j][2]);
 
-            if (diff > settings.minColorfulness) {
+            if (diff > amvis.settings.minColorfulness) {
                 dominantColor = palette[j];
                 break;
             }
@@ -193,18 +193,18 @@ function calculateImageData(pixels) {
     var finalDominantColor = Color(dominantColor);
 
     // Add / Remove Saturation if setting not 0
-    if (settings.saturation > 0) {
-        finalDominantColor = finalDominantColor.saturateByRatio(settings.saturation);
-    } else if (settings.saturation < 0) {
-        finalDominantColor = finalDominantColor.desaturateByRatio(-settings.saturation);
+    if (amvis.settings.saturation > 0) {
+        finalDominantColor = finalDominantColor.saturateByRatio(amvis.settings.saturation);
+    } else if (amvis.settings.saturation < 0) {
+        finalDominantColor = finalDominantColor.desaturateByRatio(-amvis.settings.saturation);
     }
 
     // Shift the hue if not 0
-    if (settings.shiftHue > 0) {
-        finalDominantColor = finalDominantColor.shiftHue(settings.shiftHue);
+    if (amvis.settings.shiftHue > 0) {
+        finalDominantColor = finalDominantColor.shiftHue(amvis.settings.shiftHue);
     }
 
-    remoteInformations.dominantColor = finalDominantColor.toCSS();
+    amvis.remoteInformations.dominantColor = finalDominantColor.toCSS();
     imageData['dominant'] = finalDominantColor;
 
 
@@ -218,20 +218,20 @@ function calculateImageData(pixels) {
 
     var neutral = finalDominantColor.neutralScheme();
 
-    var listOfdegrees = [-2 * settings.analogAngle, -settings.analogAngle, 0, settings.analogAngle, 2*settings.analogAngle];
+    var listOfdegrees = [-2 * amvis.settings.analogAngle, -amvis.settings.analogAngle, 0, amvis.settings.analogAngle, 2*amvis.settings.analogAngle];
     var analog_custom = finalDominantColor.schemeFromDegrees(listOfdegrees);
 
     imageData['analog'] = analog;
     imageData['analog_custom'] = analog_custom;
     imageData['neutral'] = neutral;
 
-    if (connected) {
-        socket.emit('remote_informations', remoteInformations);
+    if (amvis.connected) {
+        amvis.socket.emit('remote_informations', amvis.remoteInformations);
     }
 
     return imageData;
 
-}
+};
 
 
 ///////////////////////
@@ -245,7 +245,7 @@ function calculateImageData(pixels) {
  * @param  {[type]} videoDomElement [description]
  * @return {[type]}                 [description]
  */
-enableWebcamStream = function(videoDomElement) {
+amvis.enableWebcamStream = function(videoDomElement) {
 
     videoDomElement.autoplay = true;
 
@@ -265,28 +265,28 @@ enableWebcamStream = function(videoDomElement) {
             * Chrome / Opera
             */
             videoDomElement.src = ( window.URL || window.webkitURL ).createObjectURL( stream );
-            localMediaStream = stream;
+            amvis.localMediaStream = stream;
         } catch( e ) {
             /**
             * Firefox
             */
-            if( videoDomElement.srcObject ) {
+            if(videoDomElement.srcObject ) {
                 videoDomElement.srcObject = stream;
-                localMediaStream = stream;
+                amvis.localMediaStream = stream;
             } else {
                 videoDomElement.mozSrcObject = stream;
-                localMediaStream = stream;
+                amvis.localMediaStream = stream;
             }
             videoDomElement.play();
         }
     };
 
     var onError = function( error ) {
-        cameraFail(error);
+        amvis.cameraFail(error);
     };
 
     if(getUserMedia) {
-        getUserMedia.call( navigator, settings.webcamoptions, onStream, onError );
+        getUserMedia.call( navigator, amvis.settings.webcamoptions, onStream, onError );
     }
 };
 
@@ -295,7 +295,7 @@ enableWebcamStream = function(videoDomElement) {
  *
  * @param  {object} e Error Description / Object
  */
-var cameraFail = function (e) {
+amvis.cameraFail = function (e) {
     console.log('Camera Fail / Not ready: ', e);
 };
 
@@ -304,7 +304,7 @@ var cameraFail = function (e) {
  * @param  {array} rgbArray
  * @return {string}
  */
-function rgbToString(rgbArray) {
+amvis.rgbToString = function(rgbArray) {
     return 'rgb(' + rgbArray[0] + ', ' + rgbArray[1] + ', ' + rgbArray[2] + ')';
 }
 
@@ -312,7 +312,7 @@ function rgbToString(rgbArray) {
  * Fast Absolute Calculation
  * http://www.adobe.com/devnet/html5/articles/javascript-motion-detection.html
  */
-function fastAbs(value) {
+amvis.fastAbs = function(value) {
     // equivalent to Math.abs();
     return (value ^ (value >> 31)) - (value >> 31);
 }
