@@ -25,7 +25,7 @@ amvis.vis.programs = {};
 amvis.vis.setProgram = function(program) {
     "use strict";
 
-    if ($.inArray(program, amvis.settings.vis.programs)) {
+    if (amvis.settings.programs.indexOf(program) >= 0) {
         amvis.vis.stopCurrentProgram();
 
         // Start new Program
@@ -123,7 +123,7 @@ amvis.vis.programs.colorpalette.init = function() {
             $('#colors').html(html);
         }
 
-    }, amvis.settings.interval); // For Fast Realtime-Preview
+    }, amvis.settings.visual.interval); // For Fast Realtime-Preview
 
 };
 
@@ -140,6 +140,7 @@ amvis.vis.programs.simpleBackground = {
 
 amvis.vis.programs.simpleBackground.init = function() {
     "use strict";
+    console.log('simpleBackground.init();');
     var self = amvis.vis.programs.simpleBackground;
 
 };

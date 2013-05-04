@@ -5,29 +5,36 @@
  */
 amvis.settings = {};
 
-// Main Settings
-amvis.settings.set               = true;
-amvis.settings.serverUrl         = '/'; // Default: '/' (Own Server)  Use absolute URL for Remote Server Control
+/** Main Settings */
+amvis.settings.main = {
+    serverUrl: '/' // Default: '/' (Own Server)  Use absolute URL for Remote Server Control
+};
 
-// Visual Settings
-amvis.settings.interval          = 250;  // in ms
-amvis.settings.analogAngle       = 20;    // Rotation Degree for calculating analog palette
-amvis.settings.maxBrightness     = 100;   // 0 to 255
-amvis.settings.minBrightness     = 20;    // 0 to 255
-amvis.settings.minColorfulness   = 100;   // 0 to ~300
-amvis.settings.saturation        = 0;     // -1 to 1
-amvis.settings.shiftHue          = 0;    // 0 to 360
-
-// Advanced Settings
-amvis.settings.defaultColorArray = [[0,0,0], [0,0,0], [0,0,0], [0,0,0]];
-amvis.settings.webcamoptions     = {video:true, audio:false};
-amvis.settings.tryAgainInterval  = 3000; // New attempt to connect every ... ms
-
-amvis.settings.currentValues     = {};
-
-
-// Programs
-amvis.settings.vis.programs = [
+/** Available Programs */
+amvis.settings.programs = [
     'simpleBackground',
     'colorpalette'
 ];
+
+/** Visual Settings */
+amvis.settings.visual = {
+    interval: 250,  // in ms
+    analogAngle: 20,    // Rotation Degree for calculating analog palette
+    maxBrightness: 100,   // 0 to 255
+    minBrightness: 20,    // 0 to 255
+    minColorfulness: 100,  // 0 to ~300
+    saturation: 0,     // -1 to 1
+    shiftHue: 0    // 0 to 360
+};
+
+/** Advanced Settings */
+amvis.settings.advanced = {
+    defaultColorArray: [[0,0,0], [0,0,0], [0,0,0], [0,0,0]],
+    webcamoptions: {
+        video:true,
+        audio:false
+    },
+    tryAgainInterval: 3000, // New attempt to connect every ... ms
+    currentValues: {}
+};
+

@@ -39,8 +39,10 @@ amvis.remoteInformations = {};
 
 jQuery(document).ready(function() {
     "use strict";
+
     // Get Webcam Stream starting
     amvis.enableWebcamStream(amvis.video);
+    // Start Visualisation Program
     amvis.vis.setProgram('simpleBackground');
 
 });
@@ -50,20 +52,20 @@ jQuery(document).ready(function() {
 // Remote Control      //
 /////////////////////////
 
-if (io) {
-    amvis.socket = io.connect(amvis.settings.serverUrl);
+if ('undefined' !== typeof io) {
+    amvis.socket = io.connect(amvis.settings.main.serverUrl);
 
     // On successfull Connection with Remote Server: Upload current (default) Settings
     amvis.socket.on('sucessfull_connected', function () {
         "use strict";
-        amvis.socket.emit('upload_settings', amvis.settings);
+        amvis.socket.emit('upload_settings', amvis.settings.visual);
         amvis.connected = true;
     });
 
     // On "New Settings" Command from Remote Server: Overwrite own Settings with new ones
     amvis.socket.on('new_settings', function (data) {
         "use strict";
-        amvis.settings = data;
+        amvis.settings.visual = data;
     });
 } else {
     console.log('No Server Communication!');
@@ -203,15 +205,15 @@ amvis.calculateImageData = function(pixels) {
     var finalDominantColor = Color(dominantColor);
 
     // Add / Remove Saturation if setting not 0
-    if (amvis.settings.saturation > 0) {
-        finalDominantColor = finalDominantColor.saturateByRatio(amvis.settings.saturation);
-    } else if (amvis.settings.saturation < 0) {
-        finalDominantColor = finalDominantColor.desaturateByRatio(-amvis.settings.saturation);
+    if (amvis.settings.visual.saturation > 0) {
+        finalDominantColor = finalDominantColor.saturateByRatio(amvis.settings.visual.saturation);
+    } else if (amvis.settings.visual.saturation < 0) {
+        finalDominantColor = finalDominantColor.desaturateByRatio(-amvis.settings.visual.saturation);
     }
 
     // Shift the hue if not 0
-    if (amvis.settings.shiftHue > 0) {
-        finalDominantColor = finalDominantColor.shiftHue(amvis.settings.shiftHue);
+    if (amvis.settings.visual.shiftHue > 0) {
+        finalDominantColor = finalDominantColor.shiftHue(amvis.settings.visual.shiftHue);
     }
 
     amvis.remoteInformations.dominantColor = finalDominantColor.toCSS();
@@ -228,7 +230,7 @@ amvis.calculateImageData = function(pixels) {
 
     var neutral = finalDominantColor.neutralScheme();
 
-    var listOfdegrees = [-2 * amvis.settings.analogAngle, -amvis.settings.analogAngle, 0, amvis.settings.analogAngle, 2*amvis.settings.analogAngle];
+    var listOfdegrees = [-2 * amvis.settings.visual.analogAngle, -amvis.settings.visual.analogAngle, 0, amvis.settings.visual.analogAngle, 2*amvis.settings.visual.analogAngle];
     var analog_custom = finalDominantColor.schemeFromDegrees(listOfdegrees);
 
     imageData.analog = analog;
@@ -299,7 +301,7 @@ amvis.enableWebcamStream = function(videoDomElement) {
     };
 
     if(getUserMedia) {
-        getUserMedia.call( navigator, amvis.settings.webcamoptions, onStream, onError );
+        getUserMedia.call( navigator, amvis.settings.advanced.webcamoptions, onStream, onError );
     }
 };
 
