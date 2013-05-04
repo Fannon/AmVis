@@ -40,7 +40,7 @@ jQuery(document).ready(function() {
 
     // Get Webcam Stream starting
     amvis.enableWebcamStream(amvis.video);
-    amvis.visualisation.setProgram('colorpalette');
+    amvis.visualisation.setProgram('simpleBackground');
 
 });
 

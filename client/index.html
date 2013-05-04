@@ -7,13 +7,14 @@
 </head>
 
 <body>
+    <div id="container"></div>
     <script type="text/javascript">
 
         var FizzyText = function() {
           this.message = 'dat.gui';
           this.speed = 0.8;
           this.displayOutline = false;
-          this.explode = function() { ... };
+          this.explode = function() {};
           // Define render logic ...
         };
 
@@ -51,26 +52,5 @@
 <script src="../default-settings.js"></script>
 <script src="js/client.js"></script>
 <script src="js/visualisation.js"></script>
-
-<script type="text/javascript">
-
-var FizzyText = function() {
-  this.message = 'dat.gui';
-  this.speed = 0.8;
-  this.displayOutline = false;
-  this.explode = function() { ... };
-  // Define render logic ...
-};
-
-window.onload = function() {
-  var text = new FizzyText();
-  var gui = new dat.GUI();
-  gui.add(text, 'message');
-  gui.add(text, 'speed', -5, 5);
-  gui.add(text, 'displayOutline');
-  gui.add(text, 'explode');
-};
-
-</script>
 
 </html>
