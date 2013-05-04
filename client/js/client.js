@@ -1,4 +1,4 @@
-/* global amvis */
+/* global amvis, net, jQuery */
 
 /**
  * HTML5 Ambient Visualizer
@@ -306,7 +306,7 @@ amvis.cameraFail = function (e) {
  */
 amvis.rgbToString = function(rgbArray) {
     return 'rgb(' + rgbArray[0] + ', ' + rgbArray[1] + ', ' + rgbArray[2] + ')';
-}
+};
 
 /**
  * Fast Absolute Calculation
@@ -315,4 +315,4 @@ amvis.rgbToString = function(rgbArray) {
 amvis.fastAbs = function(value) {
     // equivalent to Math.abs();
     return (value ^ (value >> 31)) - (value >> 31);
-}
+};
