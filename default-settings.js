@@ -3,7 +3,6 @@
 /**
  * This are the default Settings the Client starts with and the Controller resets to by choosing "Default"
  */
-
 amvis.settings = {};
 
 // Main Settings
@@ -25,3 +24,10 @@ amvis.settings.webcamoptions     = {video:true, audio:false};
 amvis.settings.tryAgainInterval  = 3000; // New attempt to connect every ... ms
 
 amvis.settings.currentValues     = {};
+
+
+// Programs
+amvis.settings.vis.programs = [
+    'simpleBackground',
+    'colorpalette'
+];
