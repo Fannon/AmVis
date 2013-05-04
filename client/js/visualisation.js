@@ -7,43 +7,27 @@
 /**
  * Global Namespace, Singleton
  */
-amvis.visualisation = {};
-amvis.visualisation.programs = {};
-
-/**
- * Array with available Foreground Programs
- * @type {Array}
- */
-amvis.visualisation.availablePrograms = [
-    'simpleBackground',
-    'colorpalette'
-];
+amvis.vis = {};
+amvis.vis.programs = {};
 
 
 ////////////////////////////
 // Visualisation Handling //
 ////////////////////////////
 
-amvis.visualisation.setProgram = function(program) {
+amvis.vis.setProgram = function(program) {
     // TODO: Check if available
 
     // TODO: Stop old Program
-    amvis.visualisation.stopCurrentProgram();
+    amvis.vis.stopCurrentProgram();
 
     // Start new Program
-    amvis.visualisation.currentProgram = program;
-    amvis.visualisation.programs[program]();
+    amvis.vis.currentProgram = program;
+    amvis.vis.programs[program].init();
 };
 
-amvis.visualisation.stopCurrentProgram = function() {
+amvis.vis.stopCurrentProgram = function() {
     // TODO: Stop current Program
-};
-
-
-amvis.visualisation.setBackground = function(program) {
-    // TODO: Check if available
-    amvis.visualisation.background = program;
-    amvis.visualisation.programs[amvis.visualisation.background]();
 };
 
 
@@ -57,7 +41,8 @@ amvis.visualisation.setBackground = function(program) {
  *
  * @author Simon Heimler
  */
-amvis.visualisation.programs.colorpalette = function() {
+amvis.vis.programs.colorpalette = {};
+amvis.vis.programs.colorpalette.init = function() {
 
     setInterval(function(){
         var metaDataObject = amvis.calculateMetaData();
@@ -102,77 +87,27 @@ amvis.visualisation.programs.colorpalette = function() {
 
 };
 
-amvis.visualisation.programs.simpleBackground = function() {
 
-    console.log("pups");
-    // set the scene size
-    var WIDTH = 400,
-        HEIGHT = 300;
+/**
+ * Simple Background Program
+ * Analysiert die aktuellen Farben und gibt dazu passende Farbpaletten und -informationen aus
+ *
+ * @author Sebastian Huber
+ */
+amvis.vis.programs.simpleBackground = {
+    VIEW_ANGLE: 45
+};
+amvis.vis.programs.simpleBackground.init = function() {
 
-    // set some camera attributes
-    var VIEW_ANGLE = 45,
-        ASPECT = WIDTH / HEIGHT,
-        NEAR = 0.1,
-        FAR = 10000;
+    var self = amvis.vis.programs.simpleBackground;
 
-    // get the DOM element to attach to
-    // - assume we've got jQuery to hand
-    var $container = $('#container');
+};
 
-    // create a WebGL renderer, camera
-    // and a scene
-    var renderer = new THREE.WebGLRenderer();
-    var camera = new THREE.PerspectiveCamera(  VIEW_ANGLE,
-                                    ASPECT,
-                                    NEAR,
-                                    FAR  );
-    var scene = new THREE.Scene();
-
-    // the camera starts at 0,0,0 so pull it back
-    camera.position.z = 300;
-
-    // start the renderer
-    renderer.setSize(WIDTH, HEIGHT);
-
-    // attach the render-supplied DOM element
-    $container.append(renderer.domElement);
-
-    // create the sphere's material
-    var sphereMaterial = new THREE.MeshLambertMaterial(
-    {
-        color: 0xCC0000
-    });
-
-    // set up the sphere vars
-    var radius = 50, segments = 16, rings = 16;
-
-    // create a new mesh with sphere geometry -
-    // we will cover the sphereMaterial next!
-    var sphere = new THREE.Mesh(
-       new THREE.SphereGeometry(radius, segments, rings),
-       sphereMaterial);
-
-    // add the sphere to the scene
-    scene.add(sphere);
-
-    // and the camera
-    scene.add(camera);
-
-    // create a point light
-    var pointLight = new THREE.PointLight( 0xFFFFFF );
-
-    // set its position
-    pointLight.position.x = 10;
-    pointLight.position.y = 50;
-    pointLight.position.z = 130;
-
-    // add to the scene
-    scene.add(pointLight);
-
-    // draw!
-    renderer.render(scene, camera);
-    console.log("pups2");
-
+amvis.vis.programs.simpleBackground.animate = function() {
+    var self = amvis.vis.programs.simpleBackground;
+    self.metaDataObject = amvis.calculateMetaData();
+};
+amvis.vis.programs.simpleBackground.render = function() {
 
 };
 
