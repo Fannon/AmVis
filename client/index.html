@@ -7,6 +7,26 @@
 </head>
 
 <body>
+    <script type="text/javascript">
+
+        var FizzyText = function() {
+          this.message = 'dat.gui';
+          this.speed = 0.8;
+          this.displayOutline = false;
+          this.explode = function() { ... };
+          // Define render logic ...
+        };
+
+        window.onload = function() {
+          var text = new FizzyText();
+          var gui = new dat.GUI();
+          gui.add(text, 'message');
+          gui.add(text, 'speed', -5, 5);
+          gui.add(text, 'displayOutline');
+          gui.add(text, 'explode');
+        };
+
+    </script>
     <div align="center">
         <video autoplay id="video" width="320" height="240" style="display:none;"></video>
     </div>
@@ -21,6 +41,7 @@
 <script src="lib/jquery-2.0.0.min.js"></script>
 <script src="lib/quantize.js"></script>
 <script src="lib/color.js"></script>
+<script src="lib/dat.gui.min.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 
 <script>
@@ -31,7 +52,25 @@
 <script src="js/client.js"></script>
 <script src="js/visualisation.js"></script>
 
-<script src="scripts/simple_vertex.js" type="x-shader/x-vertex" id="vertexshader"></script>
-<script src="scripts/simple_fragment.js" type="x-shader/x-fragment" id="fragmentshader"></script>
+<script type="text/javascript">
+
+var FizzyText = function() {
+  this.message = 'dat.gui';
+  this.speed = 0.8;
+  this.displayOutline = false;
+  this.explode = function() { ... };
+  // Define render logic ...
+};
+
+window.onload = function() {
+  var text = new FizzyText();
+  var gui = new dat.GUI();
+  gui.add(text, 'message');
+  gui.add(text, 'speed', -5, 5);
+  gui.add(text, 'displayOutline');
+  gui.add(text, 'explode');
+};
+
+</script>
 
 </html>
