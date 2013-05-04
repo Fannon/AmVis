@@ -12,27 +12,32 @@ visualisation.programs = {};
  * Array with available Foreground Programs
  * @type {Array}
  */
-visualisation.foregroundPrograms = [
+visualisation.availablePrograms = [
+    'simpleBackground',
     'colorpalette'
 ];
-/**
- * Array with available Background Programs
- * @type {Array}
- */
-visualisation.backgroundPrograms = [
-    'colorpalette'
-];
+
 
 
 ////////////////////////////
 // Visualisation Handling //
 ////////////////////////////
 
-visualisation.setForeground = function(program) {
+visualisation.setProgram = function(program) {
     // TODO: Check if available
-    visualisation.foreground = program;
+
+    // TODO: Stop old Program
+    visualisation.stopCurrentProgram();
+
+    // Start new Program
     visualisation.programs[visualisation.foreground]();
+    visualisation.currentProgram = program;
 };
+
+visualisation.stopCurrentProgram = function() {
+    // TODO: Stop current Program
+}
+
 
 visualisation.setBackground = function(program) {
     // TODO: Check if available
