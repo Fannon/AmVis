@@ -29,11 +29,14 @@
         };
 
     </script>
+
+
+
     <div align="center">
         <video autoplay id="video" width="320" height="240" style="display:none;"></video>
     </div>
 
-    <canvas id="canvas" width="320" height="240"></canvas>
+    <canvas id="canvas" width="1920" height="599"></canvas>
 
     <br><br>
     <div id="colors" align="center"></div>
@@ -45,6 +48,8 @@
 <script src="lib/color.js"></script>
 <script src="lib/dat.gui.min.js"></script>
 <script src="/socket.io/socket.io.js"></script>
+<script src="glsl/simpleBackground.vert" type="x-shader/x-vertex" id="vertexshader"></script>
+<script src="glsl/simpleBackground.frag" type="x-shader/x-fragment" id="fragmentshader"></script>
 
 <script>
     var amvis = {}; // Global Namespace
