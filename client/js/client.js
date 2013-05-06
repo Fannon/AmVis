@@ -72,8 +72,6 @@ if ('undefined' !== typeof io) {
 }
 
 
-
-
 /////////////////////////
 // Processing Stream   //
 /////////////////////////
@@ -84,7 +82,7 @@ if ('undefined' !== typeof io) {
  *
  * TODO: Interpolation between Frames!
  */
-amvis.calculateMetaData = function() {
+amvis.getMetaData = function() {
     "use strict";
 
     var metaDataObject = {};

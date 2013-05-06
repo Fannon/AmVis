@@ -85,7 +85,7 @@ amvis.vis.programs.colorpalette.init = function() {
     // TODO: Rewrite this to work with ThreeJS or with amvis.vis.setHtmlOverlay();
 
     setInterval(function(){
-        var metaDataObject = amvis.calculateMetaData();
+        var metaDataObject = amvis.getMetaData();
         // console.log(metaDataObject);
 
         if (metaDataObject) {
@@ -148,7 +148,7 @@ amvis.vis.programs.simpleBackground.init = function() {
 amvis.vis.programs.simpleBackground.animate = function() {
     "use strict";
     var self = amvis.vis.programs.simpleBackground;
-    self.metaDataObject = amvis.calculateMetaData();
+    self.metaDataObject = amvis.getMetaData();
 };
 
 amvis.vis.programs.simpleBackground.render = function() {
