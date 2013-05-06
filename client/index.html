@@ -29,9 +29,6 @@
         };
 
     </script>
-
-
-
     <div align="center">
         <video autoplay id="video" width="320" height="240" style="display:none;"></video>
     </div>
@@ -42,21 +39,19 @@
     <div id="colors" align="center"></div>
 </body>
 
+<!-- External Libraries -->
 <script src="lib/three.js"></script>
 <script src="lib/jquery-2.0.0.min.js"></script>
 <script src="lib/quantize.js"></script>
 <script src="lib/color.js"></script>
 <script src="lib/dat.gui.min.js"></script>
-<script src="/socket.io/socket.io.js"></script>
-<script src="glsl/simpleBackground.vert" type="x-shader/x-vertex" id="vertexshader"></script>
-<script src="glsl/simpleBackground.frag" type="x-shader/x-fragment" id="fragmentshader"></script>
+<script src="lib/socket.io.js"></script>
 
-<script>
-    var amvis = {}; // Global Namespace
-</script>
-
-<script src="../default-settings.js"></script>
+<!-- AmVis Logic -->
 <script src="js/client.js"></script>
+<script src="../default-settings.js"></script>
+<script src="js/remoteControl.js"></script>
+<script src="js/analyzer.js"></script>
 <script src="js/visualisation.js"></script>
 
 </html>

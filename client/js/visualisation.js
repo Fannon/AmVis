@@ -1,5 +1,13 @@
-/* global amvis */
+/* global amvis, THREE */
 /* jshint jquery:true, devel:true */
+
+/**
+ * AmVis Visualisation Rendering
+ * Generates Visualisations via Three.js based on the analyzed MetaInformation
+ *
+ * @author Sebastian Huber
+ * @author Simon Heimler
+ */
 
 /////////////////////////
 // Variables           //
@@ -20,7 +28,7 @@ amvis.vis.programs = {};
  *
  * TODO: Fade In
  *
- * @param {string} program
+ * @param {String} program
  */
 amvis.vis.setProgram = function(program) {
     "use strict";
