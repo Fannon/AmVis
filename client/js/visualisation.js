@@ -92,46 +92,48 @@ amvis.vis.programs.colorpalette.init = function() {
 
     // TODO: Rewrite this to work with ThreeJS or with amvis.vis.setHtmlOverlay();
 
-    setInterval(function(){
-        var metaDataObject = amvis.getMetaData();
-        // console.log(metaDataObject);
+    $('#video').show();
 
-        if (metaDataObject) {
-            var imageData = metaDataObject.image;
+    setInterval(function(){
+
+        if (amvis.metaData.ready) {
+            var imageData = amvis.imageData;
             var html = '<div id="colordebug">';
 
-            html += '<div style="background-color: #000">Motion Score: ' + imageData.motion_score + '</div><br>';
+            html += '<div style="background-color: #000">Motion Score: ' + amvis.metaData.image.motionScore + '</div><br>';
 
-            html += '<div style="background-color: ' + imageData.dominant.toCSS() + '">DOMINANT</div><br>';
+            html += '<div style="background-color: ' + imageData.dominant.toCSS() + '">DOMINANT CURRENT</div><br>';
+
+            html += '<div style="background-color: ' + amvis.metaData.image.dominant + '">DOMINANT INTERPOLATED</div><br>';
 
             for (var j = 0; j < imageData.palette.length; j++) {
-                html += '<div style="background-color: ' + imageData.palette[j].toCSS() + '">PALETTE</div>';
+                html += '<div style="background-color: ' + amvis.metaData.image.palette[j] + '">PALETTE</div>';
             }
 
             html += '<br>';
 
-            for (j = 0; j < imageData.analog_custom.length; j++) {
-                html += '<div style="background-color: ' + imageData.analog_custom[j].toCSS() + '">ANALOG CUSTOM</div>';
-            }
-
-            html += '<br>';
+//            for (j = 0; j < imageData.analog_custom.length; j++) {
+//                html += '<div style="background-color: ' + imageData.analog_custom[j].toCSS() + '">ANALOG CUSTOM</div>';
+//            }
+//
+//            html += '<br>';
 
             for (j = 0; j < imageData.analog.length; j++) {
-                html += '<div style="background-color: ' + imageData.analog[j].toCSS() + '">ANALOG</div>';
+                html += '<div style="background-color: ' + amvis.metaData.image.analog[j] + '">ANALOG</div>';
             }
 
             html += '<br>';
 
-            for (j = 0; j < imageData.neutral.length; j++) {
-                html += '<div style="background-color: ' + imageData.neutral[j].toCSS() + '">NEUTRAL</div>';
-            }
-
-            html += '</div>';
+//            for (j = 0; j < imageData.neutral.length; j++) {
+//                html += '<div style="background-color: ' + imageData.neutral[j].toCSS() + '">NEUTRAL</div>';
+//            }
+//
+//            html += '</div>';
 
             $('#HtmlContainer').html(html);
         }
 
-    }, amvis.settings.visual.interval); // For Fast Realtime-Preview
+    }, amvis.settings.visual.interpolationInterval); // For Fast Realtime-Preview
 
 };
 

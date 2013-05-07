@@ -25,10 +25,21 @@ amvis.connected = false;
 amvis.pixelArchive = null;
 amvis.remoteInformations = {};
 
-amvis.metaData = {};
+amvis.metaData = {
+    ready: false,
+    image: {
+        raw: {
+            dominant: [0, 0, 0],
+            palette: [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+            analog: [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]
+        },
+        palette: [],
+        analog: [],
+        motionScore: 0
+    }
+};
 
 amvis.imageData = {};
-amvis.imageDataArchive = {};
 
 /////////////////////////
 // Processing Stream   //
@@ -43,29 +54,26 @@ amvis.calculateMetaData = function() {
     "use strict";
 
     // Calculate Image Metadata
-    if (amvis.localMediaStream) {
+    if (amvis.metaData.ready) {
 
-        var diffRatio = 1 / (amvis.settings.visual.analyzerInterval / amvis.settings.visual.interpolationInterval);
+        // Interpolate Dominant Color
+        amvis.interpolateColor(amvis.metaData.image.raw.dominant, amvis.imageData.dominant);
+        amvis.metaData.image.dominant = amvis.rgbToString(amvis.metaData.image.raw.dominant);
 
-        amvis.metaData.image = {};
-
-        var dominantColor = {
-            red: 0,
-            green: 0,
-            blue: 0
-        };
-
-        if (!amvis.metaData.image.dominant) {
-            amvis.metaData.image.dominant = dominantColor;
+        // Interpolate Palette
+        for (var i = 0; i < amvis.imageData.palette.length; i++) {
+            amvis.interpolateColor(amvis.metaData.image.raw.palette[i], amvis.imageData.palette[i]);
+            amvis.metaData.image.palette[i] = amvis.rgbToString(amvis.metaData.image.raw.palette[i]);
         }
 
-        dominantColor.red = ((amvis.imageData.dominant.red * diffRatio) + (amvis.metaData.image.dominant.red * (1 - diffRatio)) / 2) * 255;
-        dominantColor.green = ((amvis.imageData.dominant.green * diffRatio) + (amvis.metaData.image.dominant.green * (1 - diffRatio)) / 2) *255;
-        dominantColor.blue = ((amvis.imageData.dominant.blue * diffRatio) + (amvis.metaData.image.dominant.blue * (1 - diffRatio)) / 2) * 255;
+        // Interpolate Analog Palette
+        for (var j = 0; j < amvis.imageData.analog.length; j++) {
+            amvis.interpolateColor(amvis.metaData.image.raw.analog[j], amvis.imageData.analog[j]);
+            amvis.metaData.image.analog[j] = amvis.rgbToString(amvis.metaData.image.raw.analog[j]);
+        }
 
-        amvis.metaData.image.dominant = dominantColor;
-
-//        console.log(dominantColor);
+        // Interpolate MotionScore
+        amvis.metaData.image.motionScore = amvis.interpolateMotionScore(amvis.metaData.image.motionScore, amvis.imageData.motion_score);
 
     } else {
         amvis.cameraFail({message:'No Webcam Stream!'});
@@ -145,12 +153,11 @@ amvis.calculateImageData = function() {
     var palette = cmap.palette();
 
     // Convert RGB Arrays to Color Objects
-    var imageDatapalette = [];
-    imageDatapalette[0] = Color(palette[0]);
-    imageDatapalette[1] = Color(palette[1]);
-    imageDatapalette[2] = Color(palette[2]);
-    imageDatapalette[3] = Color(palette[3]);
-    imageDatapalette[4] = Color(palette[4]);
+    amvis.imageData.palette[0] = Color(palette[0]);
+    amvis.imageData.palette[1] = Color(palette[1]);
+    amvis.imageData.palette[2] = Color(palette[2]);
+    amvis.imageData.palette[3] = Color(palette[3]);
+    amvis.imageData.palette[4] = Color(palette[4]);
 
 
     ////////////////////////////////
@@ -199,22 +206,21 @@ amvis.calculateImageData = function() {
     // Additional Color Palettes  //
     ////////////////////////////////
 
-    // TODO: Write generic Function which returns Colorpalettes (?)
-
-    var analog = finalDominantColor.analogousScheme();
-
-    var neutral = finalDominantColor.neutralScheme();
-
     var listOfdegrees = [-2 * amvis.settings.visual.analogAngle, -amvis.settings.visual.analogAngle, 0, amvis.settings.visual.analogAngle, 2*amvis.settings.visual.analogAngle];
-    var analog_custom = finalDominantColor.schemeFromDegrees(listOfdegrees);
+    var analog = finalDominantColor.schemeFromDegrees(listOfdegrees);
+
+    // Convert to RGB Color Objects
+    for (var k = 0; k < analog.length; k++) {
+        analog[k] = analog[k].toRGB();
+    }
 
     amvis.imageData.analog = analog;
-    amvis.imageData.analog_custom = analog_custom;
-    amvis.imageData.neutral = neutral;
 
     if (amvis.connected) {
         amvis.socket.emit('remote_informations', amvis.remoteInformations);
     }
+
+    amvis.metaData.ready = true;
 
 };
 
@@ -287,6 +293,35 @@ amvis.cameraFail = function (e) {
     "use strict";
     console.log('Camera Fail / Not ready: ', e);
 };
+/**
+ * Interpolates Colors
+ *
+ * Slowly adjusts current Color (RGB Array) with new Color (Color Object) from imageData
+ *
+ * @param currentColor {array}
+ * @param newColor
+ */
+amvis.interpolateColor = function(currentColor, newColor) {
+    "use strict";
+    currentColor[0] = (newColor.red * 255 * amvis.settings.visual.interpolationRate) + (currentColor[0] * (1 - amvis.settings.visual.interpolationRate));
+    currentColor[1] = (newColor.green * 255 * amvis.settings.visual.interpolationRate) + (currentColor[1] * (1 - amvis.settings.visual.interpolationRate));
+    currentColor[2] = (newColor.blue * 255 * amvis.settings.visual.interpolationRate) + (currentColor[2] * (1 - amvis.settings.visual.interpolationRate));
+};
+
+/**
+ * Interpolates the MotionScore
+ *
+ * @param currentMotionScore
+ * @param newMotionScore
+ * @returns {number}
+ */
+amvis.interpolateMotionScore = function(currentMotionScore, newMotionScore) {
+    "use strict";
+    if (newMotionScore > 0) {
+        currentMotionScore = (newMotionScore * amvis.settings.visual.interpolationRate) + (currentMotionScore * (1 - amvis.settings.visual.interpolationRate));
+    }
+    return currentMotionScore;
+};
 
 /**
  * Converts RGB Array to CSS friendly String
@@ -296,5 +331,5 @@ amvis.cameraFail = function (e) {
  */
 amvis.rgbToString = function(rgbArray) {
     "use strict";
-    return 'rgb(' + rgbArray[0] + ', ' + rgbArray[1] + ', ' + rgbArray[2] + ')';
+    return 'rgb(' + Math.floor(rgbArray[0]) + ', ' + Math.floor(rgbArray[1]) + ', ' + Math.floor(rgbArray[2]) + ')';
 };

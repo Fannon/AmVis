@@ -35,7 +35,6 @@ jQuery(document).ready(function() {
     // Calculate Image Data if Webcam is available
     setInterval(function(){
         if (amvis.localMediaStream) {
-            amvis.imageDataArchive = amvis.imageData;
             amvis.calculateImageData();
         }
     }, amvis.settings.visual.analyzerInterval);
@@ -47,7 +46,8 @@ jQuery(document).ready(function() {
         }
     }, amvis.settings.visual.interpolationInterval);
 
+
     // Start Visualisation Program
-    amvis.vis.setProgram('simpleBackground');
+    amvis.vis.setProgram('colorpalette');
 
 });
