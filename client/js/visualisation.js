@@ -128,7 +128,7 @@ amvis.vis.programs.colorpalette.init = function() {
 
             html += '</div>';
 
-            $('#colors').html(html);
+            $('#HtmlContainer').html(html);
         }
 
     }, amvis.settings.visual.interval); // For Fast Realtime-Preview
@@ -151,6 +151,10 @@ amvis.vis.programs.simpleBackground.init = function() {
     console.log('simpleBackground.init();');
     var self = amvis.vis.programs.simpleBackground;
 
+//    var metaDataObject = amvis.getMetaData();
+
+
+
     // set the scene size
     var WIDTH = 400,
         HEIGHT = 300;
@@ -163,7 +167,7 @@ amvis.vis.programs.simpleBackground.init = function() {
 
     // get the DOM element to attach to
     // - assume we've got jQuery to hand
-    var $container = $('#container');
+    var $container = $('#VisContainer');
 
     // create a WebGL renderer, camera
     // and a scene

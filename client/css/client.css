@@ -5,6 +5,7 @@ body {
     font-size: 11px;
 }
 #colordebug {
+    margin: 0 auto;
     text-align: center;
     color: #FFF;
     width: 320px;
@@ -17,4 +18,24 @@ body {
     -webkit-border-radius: 3px;
     -khtml-border-radius: 3px;
     border-radius: 3px;
+}
+
+#VisContainer {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+#LogoContainer {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    text-align: center;
+}
+
+#HtmlContainer {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    text-align: center;
 }

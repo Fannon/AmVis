@@ -8,7 +8,15 @@
 </head>
 
 <body>
-    <div id="container"></div>
+
+    <!-- Visualisation Container -->
+    <div id="VisContainer"></div>
+
+    <!-- Overlay Container -->
+    <div id="LogoContainer"></div>
+    <div id="HtmlContainer"></div>
+
+
     <script type="text/javascript">
 
         var FizzyText = function() {
@@ -29,11 +37,12 @@
         };
 
     </script>
-    <div align="center">
-        <video autoplay id="video" width="320" height="240" style="display:none;"></video>
+
+    <div align="center" style="display:none;">
+        <video autoplay id="video" width="320" height="240" ></video>
+        <canvas id="canvas" width="320" height="240"></canvas>
     </div>
 
-    <canvas id="canvas" width="1920" height="599"></canvas>
 
     <br><br>
     <div id="colors" align="center"></div>

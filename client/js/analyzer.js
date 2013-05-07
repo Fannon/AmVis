@@ -1,4 +1,4 @@
-/* global amvis, net, io, MMCQ */
+/* global amvis, net, io, Color, MMCQ */
 /* jshint jquery:true, devel:true */
 
 /**
@@ -39,10 +39,10 @@ amvis.remoteInformations = {};
 amvis.getMetaData = function() {
     "use strict";
 
-    var metaDataObject = {};
 
     if (amvis.localMediaStream) {
 
+        var metaDataObject = {};
         // draw image according to canvas width and height
         amvis.ctx.drawImage(amvis.video, 0, 0, amvis.cw, amvis.ch);
 
@@ -50,11 +50,15 @@ amvis.getMetaData = function() {
         var pixels = amvis.ctx.getImageData(0, 0, amvis.cw, amvis.ch).data; // Gets Pixeldata from Image
         metaDataObject.image = amvis.calculateImageData(pixels);
 
+
+        return metaDataObject;
+
     } else {
         amvis.cameraFail({message:'No localMediaStream'});
+        return false;
     }
 
-    return metaDataObject;
+//    return metaDataObject;
 };
 
 
@@ -96,8 +100,8 @@ amvis.calculateImageData = function(pixels) {
         // Alpha (pixels[i+3]) is ignored
 
         // Put every interesting Pixel into the pixelArray which will be quantized for calculating the Color Palette
-        if(!(r > amvis.settings.maxBrightness && g > amvis.settings.maxBrightness && b > amvis.settings.maxBrightness) &&
-            r > amvis.settings.minBrightness && g > amvis.settings.minBrightness && b > amvis.settings.minBrightness) {
+        if(!(r > amvis.settings.visual.maxBrightness && g > amvis.settings.visual.maxBrightness && b > amvis.settings.visual.maxBrightness) &&
+            r > amvis.settings.visual.minBrightness && g > amvis.settings.visual.minBrightness && b > amvis.settings.visual.minBrightness) {
             pixelArray.push([r,g,b]);
         }
 
