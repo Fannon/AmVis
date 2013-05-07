@@ -31,12 +31,13 @@ amvis.settings.visual = {
 
 /** Advanced Settings */
 amvis.settings.advanced = {
-    defaultColorArray: [[0,0,0], [0,0,0], [0,0,0], [0,0,0]],
     webcamoptions: {
         video:true,
         audio:false
     },
+    controllerInterval: 200,
     tryAgainInterval: 3000, // New attempt to connect every ... ms
+
     currentValues: {}
 };
 

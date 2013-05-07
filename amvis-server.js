@@ -1,3 +1,6 @@
+/* global process */
+/* jshint node: true, devel: true */
+
 /**
  * AmVis Node.js Server
  * Serves static files for Client and Controller
@@ -37,6 +40,7 @@ console.log('### SERVER LISTENING ON PORT ' + port);
 //////////////////////////////
 
 app.configure(function() {
+    "use strict";
     app.use(express.methodOverride());
     app.use(express.bodyParser());
     app.use(express.static(__dirname + ''));
@@ -64,6 +68,7 @@ io.set('log level', 1); // reduce logging
 //////////////////////////////
 
 io.sockets.on('connection', function(socket) {
+    "use strict";
 
     console.log('+++ NEW REMOTE CONNECTION');
 
@@ -72,11 +77,8 @@ io.sockets.on('connection', function(socket) {
 
     // On Settings uploaded: Write them and broadcast to other connected Controllers/Clients
     socket.on('upload_settings', function(data) {
-        // console.log('<-- NEW SETTINGS INCOMING');
         settings = data;
         socket.broadcast.emit('new_settings', data);
-        socket.emit('msg', 'Settings Sucessfully Uploaded');
-
     });
 
     // Remote Informations from Client (Current Color, etc.) broadcasting to Controllers
@@ -95,9 +97,3 @@ io.sockets.on('connection', function(socket) {
     } );
 
 });
-
-
-//////////////////////////////
-// Helper Functions         //
-//////////////////////////////
-

@@ -1,3 +1,6 @@
+/* global amvis, io */
+/* jshint jquery: true, devel: true */
+
 /**
  * HTML5 Visualizer Remote Controller
  *
@@ -6,38 +9,40 @@
  *
  * @author Simon Heimler
  */
+amvis.controller = {};
+
 
 /////////////////////////
 // Variables           //
 /////////////////////////
 
-var socket = io.connect(settings.serverUrl);
+var socket = io.connect(amvis.settings.main.serverUrl);
 
-var controller = {};
-controller.tryAgainInterval = settings.tryAgainInterval;
-controller.connected = false;
-controller.ready = false;
-controller.autoSubmit = false;
-controller.autoSubmitInterval = settings.interval;
-controller.defaultSettings = settings;
-controller.settings = {}; // Discard Settings
+amvis.controller.connected = false;
+amvis.controller.ready = false;
+amvis.controller.autoSubmit = false;
+
+// Current Settings Object
+amvis.controller.settings = {}; // Discard Settings
 
 
 /////////////////////////
 // Startup             //
 /////////////////////////
-
 jQuery(document).ready(function() {
+    "use strict";
 
-    var toggleAutoSubmit = $('#toggleAutoSubmit');
+    amvis.controller.toggleAutoSubmitButton = $('#toggleAutoSubmit');
 
-    getSettings();
-
+    // Activate Toggling Button
     setInterval(function(){
-        if (toggleAutoSubmit.val() == 'on') {
-            submitSettings();
+        if (amvis.controller.toggleAutoSubmitButton.val() === 'on') {
+            amvis.controller.submitSettings();
         }
-    }, controller.autoSubmitInterval);
+    }, amvis.settings.advanced.controllerInterval);
+
+    // Get Settings from Client
+    amvis.controller.getSettings();
 
     if (!io) {
         $('#motionScore').text('WARNING: NO SOCKET CONNECTION!');
@@ -50,56 +55,50 @@ jQuery(document).ready(function() {
 // Functions           //
 /////////////////////////
 
-function submitSettings() {
-    var newSettings = readValues();
+amvis.controller.submitSettings = function() {
+    "use strict";
+    var newSettings = amvis.controller.readValues();
     socket.emit('upload_settings', newSettings);
-}
+};
 
-function getSettings() {
+amvis.controller.getSettings = function() {
+    "use strict";
     socket.emit('get_settings');
-}
+};
 
-function defaultSettings() {
-    controller.settings = controller.defaultSettings;
-    writeValues();
-}
+amvis.controller.defaultSettings = function() {
+    "use strict";
+    amvis.controller.settings = amvis.settings.visual;
+    amvis.controller.writeValues();
+};
 
-function toggleAutoSubmit() {
-    if ($('#toggleAutoSubmit').hasClass('active')) {
-        $('#toggleAutoSubmit').removeClass('active');
-        controller.autoSubmit = false;
-    } else {
-        $('#toggleAutoSubmit').addClass('active');
-        controller.autoSubmit = true;
-    }
-}
-
-function readValues() {
+amvis.controller.readValues = function() {
+    "use strict";
     var saturation = $('#saturation').val();
     var hue = $('#hue').val();
-    minBrightness = $('#minBrightness').val();
-    maxBrightness = $('#maxBrightness').val();
-    minColorfulness = $('#minColorfulness').val();
+    var minBrightness = $('#minBrightness').val();
+    var maxBrightness = $('#maxBrightness').val();
+    var minColorfulness = $('#minColorfulness').val();
 
-    controller.settings.saturation = saturation/100;
-    controller.settings.shiftHue = parseInt(hue, 10);
-    controller.settings.minBrightness = parseInt(minBrightness, 10);
-    controller.settings.maxBrightness = parseInt(maxBrightness, 10);
-    controller.settings.minColorfulness = parseInt(minColorfulness, 10);
+    amvis.controller.settings.saturation = saturation/100;
+    amvis.controller.settings.shiftHue = parseInt(hue, 10);
+    amvis.controller.settings.minBrightness = parseInt(minBrightness, 10);
+    amvis.controller.settings.maxBrightness = parseInt(maxBrightness, 10);
+    amvis.controller.settings.minColorfulness = parseInt(minColorfulness, 10);
 
-    return controller.settings;
-}
+    return amvis.controller.settings;
+};
 
-function writeValues() {
-
-    $('#saturation').val(controller.settings.saturation*100);
-    $('#hue').val(controller.settings.shiftHue);
-    $('#minBrightness').val(controller.settings.minBrightness);
-    $('#maxBrightness').val(controller.settings.maxBrightness);
-    $('#minColorfulness').val(controller.settings.minColorfulness);
+amvis.controller.writeValues = function() {
+    "use strict";
+    $('#saturation').val(amvis.controller.settings.saturation*100);
+    $('#hue').val(amvis.controller.settings.shiftHue);
+    $('#minBrightness').val(amvis.controller.settings.minBrightness);
+    $('#maxBrightness').val(amvis.controller.settings.maxBrightness);
+    $('#minColorfulness').val(amvis.controller.settings.minColorfulness);
 
     $('.refresh').slider('refresh');
-}
+};
 
 /////////////////////////
 // Transfer Protocol   //
@@ -107,36 +106,34 @@ function writeValues() {
 
 // On successfull Connection
 socket.on('sucessfull_connected', function () {
+    "use strict";
     $('#motionScore').text('CONNECTED BUT NO DATA');
-    connected = true;
+    amvis.controller.connected = true;
 });
 
 // On incoming Settings from Server
 socket.on('current_settings', function (data) {
-
-    if (data.set) {
-        controller.ready = true;
-    } else {
-        console.log('NO SETTINGS ON SERVER! TRYING AGAIN IN ' + controller.tryAgainInterval + ' MS');
-        setTimeout(function(){socket.emit('get_settings');}, controller.tryAgainInterval);
-    }
-
-    controller.settings = data;
-    writeValues();
+    "use strict";
+    amvis.controller.ready = true;
+    amvis.controller.settings = data;
+    amvis.controller.writeValues();
 });
 
 // On incoming Settings from Server
 socket.on('new_settings', function (data) {
-    controller.settings = data;
-    writeValues();
+    "use strict";
+    amvis.controller.settings = data;
+    amvis.controller.writeValues();
 });
 
 // On incoming Remote Informations (Current Data Values..)
 socket.on('remote_informations', function(data) {
+    "use strict";
     $('#dominantColor').css('background-color', data.dominantColor);
     $('#motionScore').text('MOTION SCORE: ' + data.motionScore);
 });
 
 socket.on('msg', function (data) {
-    // console.log('MESSAGE FROM SERVER: ' + data);
+    "use strict";
+    console.log('MESSAGE FROM SERVER: ' + data);
 });

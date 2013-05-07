@@ -72,7 +72,7 @@ amvis.vis.setImageOverlay = function(imageName) {
 amvis.vis.setHtmlOverlay = function(html) {
     "use strict";
     // TODO: Add Image to Overlay
-    $('#imageOveray').html();
+    $('#HtmlContainer').html(html);
 };
 
 
@@ -112,25 +112,13 @@ amvis.vis.programs.colorpalette.init = function() {
 
             html += '<br>';
 
-//            for (j = 0; j < imageData.analog_custom.length; j++) {
-//                html += '<div style="background-color: ' + imageData.analog_custom[j].toCSS() + '">ANALOG CUSTOM</div>';
-//            }
-//
-//            html += '<br>';
-
             for (j = 0; j < imageData.analog.length; j++) {
                 html += '<div style="background-color: ' + amvis.metaData.image.analog[j] + '">ANALOG</div>';
             }
 
-            html += '<br>';
+            html += '<br></div>';
 
-//            for (j = 0; j < imageData.neutral.length; j++) {
-//                html += '<div style="background-color: ' + imageData.neutral[j].toCSS() + '">NEUTRAL</div>';
-//            }
-//
-//            html += '</div>';
-
-            $('#HtmlContainer').html(html);
+            amvis.vis.setHtmlOverlay(html);
         }
 
     }, amvis.settings.visual.interpolationInterval); // For Fast Realtime-Preview
