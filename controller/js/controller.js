@@ -44,6 +44,13 @@ jQuery(document).ready(function() {
     // Get Settings from Client
     amvis.controller.getSettings();
 
+    // Load available Programs into ListView
+    var html = '';
+    for (var i = 0; i < amvis.settings.programs.length; i++) {
+        html += '<li><a href="#" onclick="amvis.controller.setProgram(this)">' + amvis.settings.programs[i] + '</a></li>';
+    }
+    $('#programList').append(html).listview("refresh");
+
     if (!io) {
         $('#motionScore').text('WARNING: NO SOCKET CONNECTION!');
     }
@@ -59,6 +66,12 @@ amvis.controller.submitSettings = function() {
     "use strict";
     var newSettings = amvis.controller.readValues();
     socket.emit('upload_settings', newSettings);
+};
+
+amvis.controller.setProgram = function(el) {
+    "use strict";
+    console.dir(el);
+    socket.emit('set_program', el.text);
 };
 
 amvis.controller.getSettings = function() {

@@ -33,7 +33,9 @@ amvis.vis.programs = {};
 amvis.vis.setProgram = function(program) {
     "use strict";
 
-    if (amvis.settings.programs.indexOf(program) >= 0) {
+        if (amvis.settings.programs.indexOf(program) >= 0) {
+
+        // Stop current Program
         amvis.vis.stopCurrentProgram();
 
         // Start new Program
@@ -51,7 +53,9 @@ amvis.vis.setProgram = function(program) {
  */
 amvis.vis.stopCurrentProgram = function() {
     "use strict";
-    // TODO: Stop current Program
+    if (amvis.vis.currentProgram) {
+        amvis.vis.programs[amvis.vis.currentProgram].stop();
+    }
 };
 
 /**
@@ -60,8 +64,9 @@ amvis.vis.stopCurrentProgram = function() {
  */
 amvis.vis.setImageOverlay = function(imageName) {
     "use strict";
-    // TODO: Add Image to Overlay
-    $('#imageOveray').html();
+    var img = $('<img id="overlayImage">');
+    img.attr('src', 'img/' + imageName);
+    $('#imageOveray').html(img);
 };
 
 /**
@@ -86,43 +91,58 @@ amvis.vis.setHtmlOverlay = function(html) {
  *
  * @author Simon Heimler
  */
-amvis.vis.programs.colorpalette = {};
-amvis.vis.programs.colorpalette.init = function() {
-    "use strict";
+amvis.vis.programs.colorpalette = {
 
-    // TODO: Rewrite this to work with ThreeJS or with amvis.vis.setHtmlOverlay();
+    init: function() {
+        "use strict";
+        // Show Webcam Input Video
+        $('#video').show();
 
-    $('#video').show();
+        amvis.vis.programs.colorpalette.animate();
+    },
+    animate: function() {
+        "use strict";
+        var self = amvis.vis.programs.colorpalette;
+        self.interval = setInterval(function(){
 
-    setInterval(function(){
+            if (amvis.metaData.ready) {
+                var imageData = amvis.imageData;
+                var html = '<div id="colordebug">';
 
-        if (amvis.metaData.ready) {
-            var imageData = amvis.imageData;
-            var html = '<div id="colordebug">';
+                html += '<div style="background-color: #000">Motion Score: ' + amvis.metaData.image.motionScore + '</div><br>';
 
-            html += '<div style="background-color: #000">Motion Score: ' + amvis.metaData.image.motionScore + '</div><br>';
+                html += '<div style="background-color: ' + imageData.dominant.toCSS() + '">DOMINANT CURRENT</div><br>';
 
-            html += '<div style="background-color: ' + imageData.dominant.toCSS() + '">DOMINANT CURRENT</div><br>';
+                html += '<div style="background-color: ' + amvis.metaData.image.dominant + '">DOMINANT INTERPOLATED</div><br>';
 
-            html += '<div style="background-color: ' + amvis.metaData.image.dominant + '">DOMINANT INTERPOLATED</div><br>';
+                for (var j = 0; j < imageData.palette.length; j++) {
+                    html += '<div style="background-color: ' + amvis.metaData.image.palette[j] + '">PALETTE</div>';
+                }
 
-            for (var j = 0; j < imageData.palette.length; j++) {
-                html += '<div style="background-color: ' + amvis.metaData.image.palette[j] + '">PALETTE</div>';
+                html += '<br>';
+
+                for (j = 0; j < imageData.analog.length; j++) {
+                    html += '<div style="background-color: ' + amvis.metaData.image.analog[j] + '">ANALOG</div>';
+                }
+
+                html += '<br></div>';
+
+                amvis.vis.setHtmlOverlay(html);
             }
 
-            html += '<br>';
+        }, amvis.settings.visual.interpolationInterval); // For Fast Realtime-Preview
+    },
+    render: function() {
+        "use strict";
 
-            for (j = 0; j < imageData.analog.length; j++) {
-                html += '<div style="background-color: ' + amvis.metaData.image.analog[j] + '">ANALOG</div>';
-            }
-
-            html += '<br></div>';
-
-            amvis.vis.setHtmlOverlay(html);
-        }
-
-    }, amvis.settings.visual.interpolationInterval); // For Fast Realtime-Preview
-
+    },
+    stop: function() {
+        "use strict";
+        var self = amvis.vis.programs.colorpalette;
+        $('#video').hide();
+        amvis.vis.setHtmlOverlay('');
+        clearInterval(self.interval);
+    }
 };
 
 
@@ -133,13 +153,17 @@ amvis.vis.programs.colorpalette.init = function() {
  * @author Sebastian Huber
  */
 amvis.vis.programs.simpleBackground = {
-    VIEW_ANGLE: 45
+    VIEW_ANGLE: 45,
+    stop: function() {
+        "use strict";
+        $('#VisContainer').html('');
+    }
 };
 
 amvis.vis.programs.simpleBackground.init = function() {
     "use strict";
     console.log('simpleBackground.init();');
-    var self = amvis.vis.programs.simpleBackground;
+//    var self = amvis.vis.programs.simpleBackground;
 
 //    var metaDataObject = amvis.getMetaData();
 
@@ -231,8 +255,6 @@ amvis.vis.programs.simpleBackground.init = function() {
 
 amvis.vis.programs.simpleBackground.animate = function() {
     "use strict";
-    var self = amvis.vis.programs.simpleBackground;
-    self.metaDataObject = amvis.getMetaData();
 };
 
 amvis.vis.programs.simpleBackground.render = function() {
@@ -243,7 +265,3 @@ amvis.vis.programs.simpleBackground.render = function() {
 ///////////////////////
 // Helper Functions  //
 ///////////////////////
-
-// TODO: Color Palette Generation
-
-// TODO: Color Change Interpolation

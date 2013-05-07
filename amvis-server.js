@@ -86,6 +86,12 @@ io.sockets.on('connection', function(socket) {
         socket.broadcast.emit('remote_informations', data);
     });
 
+    // Set (change) current Visualisation Program
+    socket.on('set_program', function(data) {
+        console.log('<-- SET PROGRAM REQUEST');
+        socket.broadcast.emit('set_program', data);
+    });
+
     // Gets actual Settings from Server
     socket.on('get_settings', function() {
         // console.log('--> SENDING SETTINGS BY REQUEST');

@@ -27,6 +27,14 @@ if ('undefined' !== typeof io) {
         "use strict";
         amvis.settings.visual = data;
     });
+
+    /** On "New Settings" Command from Remote Server: Overwrite own Settings with new ones */
+    amvis.socket.on('set_program', function (data) {
+        "use strict";
+        console.log('Set Program: ' + data);
+        amvis.vis.setProgram(data);
+    });
+
 } else {
     console.log('No Server Communication!');
 }
