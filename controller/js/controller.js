@@ -76,12 +76,14 @@ amvis.controller.readValues = function() {
     "use strict";
     var saturation = $('#saturation').val();
     var hue = $('#hue').val();
+    var analogAngle = $('#analogAngle').val();
     var minBrightness = $('#minBrightness').val();
     var maxBrightness = $('#maxBrightness').val();
     var minColorfulness = $('#minColorfulness').val();
 
     amvis.controller.settings.saturation = saturation/100;
     amvis.controller.settings.shiftHue = parseInt(hue, 10);
+    amvis.controller.settings.analogAngle = parseInt(analogAngle, 10);
     amvis.controller.settings.minBrightness = parseInt(minBrightness, 10);
     amvis.controller.settings.maxBrightness = parseInt(maxBrightness, 10);
     amvis.controller.settings.minColorfulness = parseInt(minColorfulness, 10);
@@ -93,6 +95,7 @@ amvis.controller.writeValues = function() {
     "use strict";
     $('#saturation').val(amvis.controller.settings.saturation*100);
     $('#hue').val(amvis.controller.settings.shiftHue);
+    $('#analogAngle').val(amvis.controller.settings.analogAngle);
     $('#minBrightness').val(amvis.controller.settings.minBrightness);
     $('#maxBrightness').val(amvis.controller.settings.maxBrightness);
     $('#minColorfulness').val(amvis.controller.settings.minColorfulness);
