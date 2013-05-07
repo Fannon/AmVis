@@ -25,40 +25,52 @@ amvis.connected = false;
 amvis.pixelArchive = null;
 amvis.remoteInformations = {};
 
+amvis.metaData = {};
+
+amvis.imageData = {};
+amvis.imageDataArchive = {};
 
 /////////////////////////
 // Processing Stream   //
 /////////////////////////
 
 /**
- * Draws current WebCam Frame to 2D Canvas
- * Calculates Metadata from media input
+ * Calculates and interpolates Metadata from media input
  *
  * TODO: Interpolation between Frames!
  */
-amvis.getMetaData = function() {
+amvis.calculateMetaData = function() {
     "use strict";
 
-
+    // Calculate Image Metadata
     if (amvis.localMediaStream) {
 
-        var metaDataObject = {};
-        // draw image according to canvas width and height
-        amvis.ctx.drawImage(amvis.video, 0, 0, amvis.cw, amvis.ch);
+        var diffRatio = 1 / (amvis.settings.visual.analyzerInterval / amvis.settings.visual.interpolationInterval);
 
-        // Get Image Metadata
-        var pixels = amvis.ctx.getImageData(0, 0, amvis.cw, amvis.ch).data; // Gets Pixeldata from Image
-        metaDataObject.image = amvis.calculateImageData(pixels);
+        amvis.metaData.image = {};
 
+        var dominantColor = {
+            red: 0,
+            green: 0,
+            blue: 0
+        };
 
-        return metaDataObject;
+        if (!amvis.metaData.image.dominant) {
+            amvis.metaData.image.dominant = dominantColor;
+        }
+
+        dominantColor.red = ((amvis.imageData.dominant.red * diffRatio) + (amvis.metaData.image.dominant.red * (1 - diffRatio)) / 2) * 255;
+        dominantColor.green = ((amvis.imageData.dominant.green * diffRatio) + (amvis.metaData.image.dominant.green * (1 - diffRatio)) / 2) *255;
+        dominantColor.blue = ((amvis.imageData.dominant.blue * diffRatio) + (amvis.metaData.image.dominant.blue * (1 - diffRatio)) / 2) * 255;
+
+        amvis.metaData.image.dominant = dominantColor;
+
+//        console.log(dominantColor);
 
     } else {
-        amvis.cameraFail({message:'No localMediaStream'});
-        return false;
+        amvis.cameraFail({message:'No Webcam Stream!'});
     }
 
-//    return metaDataObject;
 };
 
 
@@ -71,19 +83,26 @@ amvis.getMetaData = function() {
  *
  * Uses quantize.js Copyright 2008 Nick Rabinowitz.
  *
- * @param  {CanvasPixelArray}      pixels     Pixel Array from Canvas
  * @return {object}                           Object with Color Informations
  */
-amvis.calculateImageData = function(pixels) {
+amvis.calculateImageData = function() {
     "use strict";
+
+    ////////////////////////////////
+    // Get Pixeldata              //
+    ////////////////////////////////
+
+    // draw image according to canvas width and height
+    amvis.ctx.drawImage(amvis.video, 0, 0, amvis.cw, amvis.ch);
+
+    // Get Image Metadata
+    var pixels = amvis.ctx.getImageData(0, 0, amvis.cw, amvis.ch).data; // Gets Pixeldata from Image
 
     if (!amvis.pixelArchive) {
         amvis.pixelArchive = pixels;
     }
 
-    var imageData = {
-        'palette': []
-    };
+    amvis.imageData.palette = [];
     var pixelArray = [];
     var dominantColor;
     var motionScore = 0;
@@ -113,17 +132,17 @@ amvis.calculateImageData = function(pixels) {
     }
 
     amvis.pixelArchive = pixels;
-    imageData.motion_score = Math.round((motionScore / amvis.totalPixels) * 100) / 100;
-    amvis.remoteInformations.motionScore = imageData.motion_score;
+    amvis.imageData.motion_score = Math.round((motionScore / amvis.totalPixels) * 100) / 100;
+    amvis.remoteInformations.motionScore = amvis.imageData.motion_score;
+
+
+    ////////////////////////////////
+    // Calculate Main Palette     //
+    ////////////////////////////////
 
     // Send array to quantize function which clusters values using median cut algorithm
     var cmap = MMCQ.quantize(pixelArray, 5);
     var palette = cmap.palette();
-
-
-    ////////////////////////////////
-    // Calculate Palette          //
-    ////////////////////////////////
 
     // Convert RGB Arrays to Color Objects
     var imageDatapalette = [];
@@ -173,11 +192,11 @@ amvis.calculateImageData = function(pixels) {
     }
 
     amvis.remoteInformations.dominantColor = finalDominantColor.toCSS();
-    imageData.dominant = finalDominantColor;
+    amvis.imageData.dominant = finalDominantColor;
 
 
     ////////////////////////////////
-    // Calculate Palettes         //
+    // Additional Color Palettes  //
     ////////////////////////////////
 
     // TODO: Write generic Function which returns Colorpalettes (?)
@@ -189,15 +208,13 @@ amvis.calculateImageData = function(pixels) {
     var listOfdegrees = [-2 * amvis.settings.visual.analogAngle, -amvis.settings.visual.analogAngle, 0, amvis.settings.visual.analogAngle, 2*amvis.settings.visual.analogAngle];
     var analog_custom = finalDominantColor.schemeFromDegrees(listOfdegrees);
 
-    imageData.analog = analog;
-    imageData.analog_custom = analog_custom;
-    imageData.neutral = neutral;
+    amvis.imageData.analog = analog;
+    amvis.imageData.analog_custom = analog_custom;
+    amvis.imageData.neutral = neutral;
 
     if (amvis.connected) {
         amvis.socket.emit('remote_informations', amvis.remoteInformations);
     }
-
-    return imageData;
 
 };
 

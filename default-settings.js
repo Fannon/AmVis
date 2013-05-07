@@ -18,7 +18,8 @@ amvis.settings.programs = [
 
 /** Visual Settings */
 amvis.settings.visual = {
-    interval: 250,  // in ms
+    analyzerInterval: 250,  // in ms
+    interpolationInterval: 10,
     analogAngle: 20,    // Rotation Degree for calculating analog palette
     maxBrightness: 100,   // 0 to 255
     minBrightness: 20,    // 0 to 255

@@ -31,6 +31,22 @@ jQuery(document).ready(function() {
 
     // Get Webcam Stream starting
     amvis.enableWebcamStream(amvis.video);
+
+    // Calculate Image Data if Webcam is available
+    setInterval(function(){
+        if (amvis.localMediaStream) {
+            amvis.imageDataArchive = amvis.imageData;
+            amvis.calculateImageData();
+        }
+    }, amvis.settings.visual.analyzerInterval);
+
+    // Calculate MetaData from Image Data
+    setInterval(function(){
+        if (amvis.localMediaStream) {
+            amvis.calculateMetaData();
+        }
+    }, amvis.settings.visual.interpolationInterval);
+
     // Start Visualisation Program
     amvis.vis.setProgram('simpleBackground');
 
