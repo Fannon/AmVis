@@ -48,6 +48,6 @@ jQuery(document).ready(function() {
 
 
     // Start Visualisation Program
-    amvis.vis.setProgram('colorpalette');
+    amvis.vis.setProgram('experimental');
 
 });

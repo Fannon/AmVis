@@ -17,27 +17,7 @@
     <div id="HtmlContainer"></div>
 
 
-    <script type="text/javascript">
-
-        var FizzyText = function() {
-          this.message = 'dat.gui';
-          this.speed = 0.8;
-          this.displayOutline = false;
-          this.explode = function() {};
-          // Define render logic ...
-        };
-
-        window.onload = function() {
-          var text = new FizzyText();
-          var gui = new dat.GUI();
-          gui.add(text, 'message');
-          gui.add(text, 'speed', -5, 5);
-          gui.add(text, 'displayOutline');
-          gui.add(text, 'explode');
-        };
-
-    </script>
-
+    <!-- WebCam Input -->
     <div align="center" >
         <video autoplay id="video" width="320" height="240" style="display:none;"></video>
         <canvas id="canvas" width="320" height="240" style="display:none;"></canvas>
@@ -45,15 +25,17 @@
 
 
     <br><br>
-    <div id="colors" align="center"></div>
+    <div id="colors"></div>
 </body>
 
 <!-- External Libraries -->
-<script src="lib/three.js"></script>
 <script src="lib/jquery-2.0.0.min.js"></script>
+<script src="lib/three.js"></script>
+<script src="lib/Stats.js"></script>
+<script src="lib/threex/THREEx.WindowResize.js"></script>
 <script src="lib/quantize.js"></script>
 <script src="lib/color.js"></script>
-<script src="lib/dat.gui.min.js"></script>
+<!--<script src="lib/dat.gui.min.js"></script>-->
 <script src="lib/socket.io.js"></script>
 
 <!-- AmVis Logic -->

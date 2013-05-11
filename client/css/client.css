@@ -1,4 +1,6 @@
 body {
+    overflow: hidden;
+    padding: 0;
     margin: 0;
     text-align: center;
     font-family: Verdana, Sans;
@@ -24,18 +26,19 @@ body {
     width: 100%;
     height: 100%;
     position: relative;
+    background: #EEE;
 }
 
 #LogoContainer {
+    position: absolute;
+    top: 0;
     width: 100%;
-    height: 100%;
-    position: relative;
-    text-align: center;
 }
 
 #HtmlContainer {
+    position: absolute;
+    top: 0;
     width: 100%;
-    height: 100%;
-    position: relative;
+    padding: 10px;
     text-align: center;
 }

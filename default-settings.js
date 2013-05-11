@@ -13,7 +13,8 @@ amvis.settings.main = {
 /** Available Programs */
 amvis.settings.programs = [
     'simpleBackground',
-    'colorpalette'
+    'colorpalette',
+    'experimental'
 ];
 
 /** Visual Settings */
@@ -37,7 +38,7 @@ amvis.settings.advanced = {
     },
     controllerInterval: 200,
     tryAgainInterval: 3000, // New attempt to connect every ... ms
-
+    antialias: true,
     currentValues: {}
 };
 

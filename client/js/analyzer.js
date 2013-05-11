@@ -24,6 +24,7 @@ amvis.totalPixels = amvis.cw * amvis.ch;
 amvis.connected = false;
 amvis.pixelArchive = null;
 amvis.remoteInformations = {};
+amvis.palette = [];
 
 amvis.metaData = {
     ready: false,
@@ -75,8 +76,6 @@ amvis.calculateMetaData = function() {
         // Interpolate MotionScore
         amvis.metaData.image.motionScore = amvis.interpolateMotionScore(amvis.metaData.image.motionScore, amvis.imageData.motion_score);
 
-    } else {
-        amvis.cameraFail({message:'No Webcam Stream!'});
     }
 
 };
@@ -150,9 +149,16 @@ amvis.calculateImageData = function() {
 
     // Send array to quantize function which clusters values using median cut algorithm
     var cmap = MMCQ.quantize(pixelArray, 5);
-    var palette = cmap.palette();
+    try {
+        amvis.palette = cmap.palette();
+    } catch (e) {
+        // Ignore broken Palette (takes last one)
+        console.log('CATCH');
+    }
+
 
     // Convert RGB Arrays to Color Objects
+    var palette = amvis.palette;
     amvis.imageData.palette[0] = Color(palette[0]);
     amvis.imageData.palette[1] = Color(palette[1]);
     amvis.imageData.palette[2] = Color(palette[2]);
