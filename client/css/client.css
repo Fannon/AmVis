@@ -7,10 +7,10 @@ body {
     font-size: 11px;
 }
 #colordebug {
-    margin: 10px auto;
+    margin: 250px auto 0 auto;
     text-align: center;
     color: #FFF;
-    width: 320px;
+    width: 260px;
 }
 
 #colordebug div {

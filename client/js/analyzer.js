@@ -139,7 +139,7 @@ amvis.calculateImageData = function() {
     }
 
     amvis.pixelArchive = pixels;
-    amvis.imageData.motion_score = Math.round((motionScore / amvis.totalPixels) * 100) / 100;
+    amvis.imageData.motion_score = Math.round((motionScore / amvis.totalPixels) * 100 * amvis.settings.visual.motionScoreDegree) / 100;
     amvis.remoteInformations.motionScore = amvis.imageData.motion_score;
 
 

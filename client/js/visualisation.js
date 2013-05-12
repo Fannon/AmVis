@@ -1,4 +1,4 @@
-/* global amvis, THREE, THREEx, Stats, requestAnimationFrame */
+/* global amvis, THREE, THREEx, Stats, requestAnimationFrame, cancelAnimationFrame */
 /* jshint jquery:true, devel:true */
 
 /**
@@ -193,14 +193,14 @@ amvis.vis.programs.experimental = {
         // Scene Lights            //
         ///////////////////////////////
 
-        var ambientLight	= new THREE.AmbientLight( Math.random() * 0xffffff );
+        var ambientLight	= new THREE.AmbientLight(0xffffff );
         c.scene.add(ambientLight);
 
-        var directionalLight	= new THREE.DirectionalLight( Math.random() * 0xffffff );
+        var directionalLight	= new THREE.DirectionalLight(0xffffff );
         directionalLight.position.set( Math.random(), Math.random(), Math.random() ).normalize();
         c.scene.add(directionalLight);
 
-        var pointLight	= new THREE.PointLight( Math.random() * 0xffffff );
+        var pointLight	= new THREE.PointLight(0xffffff );
         pointLight.position.set( Math.random()-0.5, Math.random()-0.5, Math.random()-0.5 )
             .normalize().multiplyScalar(1.2);
         c.scene.add(pointLight);
@@ -220,7 +220,7 @@ amvis.vis.programs.experimental = {
             // var geometry = new THREE.SphereGeometry(size/2, 7, 7)
             var material = new THREE.MeshLambertMaterial({
                 color: new THREE.Color().setHex('0x9D1515'),
-                opacity: 0.2,
+                opacity: 0.1,
                 transparent: true
             });
 //            var material    = new THREE.MeshLambertMaterial({ambient: 0x808080, color: Math.random() * 0xffffff, opacity: 0.5});
@@ -269,8 +269,9 @@ amvis.vis.programs.experimental = {
 //        for (i = 0; i < TOTAL_MATERIALS; i++) {
 //            particleMaterials.push(new THREE.ParticleBasicMaterial({
 //                color: 0xFFFFFF,
-//                size: Math.random() * PARTICLE_SIZE_VARIATION + PARTICLE_MINSIZE,
+//                size: Math.random() * PARTICLE_SIZE_VARIATION + PARTICLE_MINSIZE * 0.1,
 //                opacity: 0.05,
+////                sizeAttenuation: false,
 //                transparent: true,
 //                map: THREE.ImageUtils.loadTexture('img/particle.png')
 //            }));
@@ -321,6 +322,8 @@ amvis.vis.programs.experimental = {
         for(var i = 0; i < geometryGroup.length; i ++ ){
             geometryGroup[i].rotation.y = PIseconds*0.0001 * (i % 2 ? 1 : -1);
             geometryGroup[i].rotation.x = PIseconds*0.00005 * (i % 2 ? 1 : -1);
+            geometryGroup[i].rotation.x += (amvis.metaData.image.motionScore * 0.01) * (i % 2 ? 1 : -1);
+            geometryGroup[i].rotation.y += (amvis.metaData.image.motionScore * 0.01) * (i % 2 ? 1 : -1);
             if (amvis.metaData.ready) {
                 geometryGroup[i].material.color = new THREE.Color(amvis.metaData.image.analog[3]);
             }
@@ -336,7 +339,7 @@ amvis.vis.programs.experimental = {
             particleSystems[i].rotation.y = PIseconds*0.00001 * (i % 2 ? 1 : -1);
             particleSystems[i].rotation.x = PIseconds*0.00001 * (i % 2 ? 1 : -1);
             if (amvis.metaData.ready) {
-                particleSystems[i].material.color = new THREE.Color(amvis.metaData.image.analog[4]);
+                particleSystems[i].material.color = new THREE.Color(amvis.metaData.image.analog[5]);
             }
         }
 
@@ -354,6 +357,7 @@ amvis.vis.programs.experimental = {
 
         self.c = {}; // Clears Container Object with every Data in it.
         amvis.vis.running = false;
+        cancelAnimationFrame(self.animate);
         $('#VisContainer').html('');
     }
 };

@@ -19,15 +19,16 @@ amvis.settings.programs = [
 
 /** Visual Settings */
 amvis.settings.visual = {
-    analyzerInterval: 250,  // in ms
+    analyzerInterval: 500,  // in ms
     interpolationInterval: 100, // in ms
-    interpolationRate: 0.07, // How much Interpolation is applied each Interval
+    interpolationRate: 0.05, // How much Interpolation is applied each Interval
     analogAngle: 20,    // Rotation Degree for calculating analog palette
     maxBrightness: 100,   // 0 to 255
     minBrightness: 20,    // 0 to 255
     minColorfulness: 100,  // 0 to ~300
     saturation: 0,     // -1 to 1
-    shiftHue: 0    // 0 to 360
+    shiftHue: 0,    // 0 to 360
+    motionScoreDegree: 1.0 // 0 to 1
 };
 
 /** Advanced Settings */
