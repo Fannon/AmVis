@@ -337,5 +337,5 @@ amvis.interpolateMotionScore = function(currentMotionScore, newMotionScore) {
  */
 amvis.rgbToString = function(rgbArray) {
     "use strict";
-    return 'rgb(' + Math.floor(rgbArray[0]) + ', ' + Math.floor(rgbArray[1]) + ', ' + Math.floor(rgbArray[2]) + ')';
+    return 'rgb(' + Math.floor(rgbArray[0]) + ',' + Math.floor(rgbArray[1]) + ',' + Math.floor(rgbArray[2]) + ')';
 };

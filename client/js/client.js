@@ -32,6 +32,7 @@ jQuery(document).ready(function() {
     // Get Webcam Stream starting
     amvis.enableWebcamStream(amvis.video);
 
+
     // Calculate Image Data if Webcam is available
     setInterval(function(){
         if (amvis.localMediaStream) {

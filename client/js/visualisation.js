@@ -262,20 +262,34 @@ amvis.vis.programs.experimental = {
                 (Math.random() * 2 - 1) * 5,
                 (Math.random() * 2 - 1) * 5
             );
-            particleGeometry.vertices.push(new THREE.Vertex(vector));
+            particleGeometry.vertices.push(vector);
         }
 
-        var particleMaterials = [];
-        for (i = 0; i < TOTAL_MATERIALS; i++) {
-            particleMaterials.push(new THREE.ParticleBasicMaterial({
-                color: 0xFFFFFF,
-                size: Math.random() * PARTICLE_SIZE_VARIATION + PARTICLE_MINSIZE,
-                sizeAttenuation: false
-            }));
-        }
+//        var particleMaterials = [];
+//        for (i = 0; i < TOTAL_MATERIALS; i++) {
+//            particleMaterials.push(new THREE.ParticleBasicMaterial({
+//                color: 0xFFFFFF,
+//                size: Math.random() * PARTICLE_SIZE_VARIATION + PARTICLE_MINSIZE,
+//                opacity: 0.05,
+//                transparent: true,
+//                map: THREE.ImageUtils.loadTexture('img/particle.png')
+//            }));
+//        }
+
+        var particleMaterial = new THREE.ParticleBasicMaterial({
+            color: 0xFFFFFF,
+            size: 0.1,
+            opacity: 0.5,
+            transparent: true,
+            map: THREE.ImageUtils.loadTexture('img/particle2.png'),
+            blending: 2
+        });
+
+//        var testMaterial = new THREE.ParticleCanvasMaterial();
 
         for (i = 0; i < TOTAL_PARTICLESYSTEMS; i++) {
-            var particles = new THREE.ParticleSystem(particleGeometry, particleMaterials[i % TOTAL_MATERIALS]);
+//            var particles = new THREE.ParticleSystem(particleGeometry, particleMaterials[i % TOTAL_MATERIALS]);
+            var particles = new THREE.ParticleSystem(particleGeometry, particleMaterial);
             particles.rotation.y = i / (Math.PI * 2);
             c.particleGroup.add(particles);
         }
@@ -307,13 +321,23 @@ amvis.vis.programs.experimental = {
         for(var i = 0; i < geometryGroup.length; i ++ ){
             geometryGroup[i].rotation.y = PIseconds*0.0001 * (i % 2 ? 1 : -1);
             geometryGroup[i].rotation.x = PIseconds*0.00005 * (i % 2 ? 1 : -1);
+            if (amvis.metaData.ready) {
+                geometryGroup[i].material.color = new THREE.Color(amvis.metaData.image.analog[3]);
+            }
         }
+        if (amvis.metaData.ready) {
+            c.renderer.setClearColor(new THREE.Color(amvis.metaData.image.dominant));
+        }
+
 
         // animation of all Particles
         var particleSystems = c.particleGroup.children;
         for(i = 0; i < particleSystems.length; i ++ ){
             particleSystems[i].rotation.y = PIseconds*0.00001 * (i % 2 ? 1 : -1);
             particleSystems[i].rotation.x = PIseconds*0.00001 * (i % 2 ? 1 : -1);
+            if (amvis.metaData.ready) {
+                particleSystems[i].material.color = new THREE.Color(amvis.metaData.image.analog[4]);
+            }
         }
 
         // Get new Animation Frame and render it
