@@ -29,6 +29,11 @@ var Color = net.brehaut.Color;
 jQuery(document).ready(function() {
     "use strict";
 
+    // Disable Right Mouse Button Context Menu
+    $(this).bind("contextmenu", function(e) {
+        e.preventDefault();
+    });
+
     // Get Webcam Stream starting
     amvis.enableWebcamStream(amvis.video);
 
