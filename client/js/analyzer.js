@@ -31,8 +31,20 @@ amvis.metaData = {
     image: {
         raw: {
             dominant: [0, 0, 0],
-            palette: [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
-            analog: [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]
+            palette: [
+                [0, 0, 0],
+                [0, 0, 0],
+                [0, 0, 0],
+                [0, 0, 0],
+                [0, 0, 0]
+            ],
+            analog: [
+                [0, 0, 0],
+                [0, 0, 0],
+                [0, 0, 0],
+                [0, 0, 0],
+                [0, 0, 0]
+            ]
         },
         palette: [],
         analog: [],
@@ -118,22 +130,22 @@ amvis.calculateImageData = function() {
     // while loop with i and n cached: http://jsperf.com/fors-vs-while/58
     var i = 0;
     var n = pixels.length;
-    while (i < n) {
+    while(i < n) {
 
         var r = pixels[i];
-        var g = pixels[i+1];
-        var b = pixels[i+2];
+        var g = pixels[i + 1];
+        var b = pixels[i + 2];
         // Alpha (pixels[i+3]) is ignored
 
         // Put every interesting Pixel into the pixelArray which will be quantized for calculating the Color Palette
-        if(!(r > amvis.settings.visual.maxBrightness && g > amvis.settings.visual.maxBrightness && b > amvis.settings.visual.maxBrightness) &&
+        if (!(r > amvis.settings.visual.maxBrightness && g > amvis.settings.visual.maxBrightness && b > amvis.settings.visual.maxBrightness) &&
             r > amvis.settings.visual.minBrightness && g > amvis.settings.visual.minBrightness && b > amvis.settings.visual.minBrightness) {
-            pixelArray.push([r,g,b]);
+            pixelArray.push([r, g, b]);
         }
 
         // Calculate Motion Score
-        var motionDiff = Math.abs(amvis.pixelArchive[i] - r) + Math.abs(amvis.pixelArchive[i+1] - g) + Math.abs(amvis.pixelArchive[i+2] - b);
-        motionScore += motionDiff/3;
+        var motionDiff = Math.abs(amvis.pixelArchive[i] - r) + Math.abs(amvis.pixelArchive[i + 1] - g) + Math.abs(amvis.pixelArchive[i + 2] - b);
+        motionScore += motionDiff / 3;
 
         i += 4;
     }
@@ -150,6 +162,7 @@ amvis.calculateImageData = function() {
     // Send array to quantize function which clusters values using median cut algorithm
     var cmap = MMCQ.quantize(pixelArray, 5);
     try {
+        // TODO: Three.JS crashes when no Palette is returned!
         amvis.palette = cmap.palette();
     } catch (e) {
         // Ignore broken Palette (takes last one)
@@ -212,7 +225,7 @@ amvis.calculateImageData = function() {
     // Additional Color Palettes  //
     ////////////////////////////////
 
-    var listOfdegrees = [-2 * amvis.settings.visual.analogAngle, -amvis.settings.visual.analogAngle, 0, amvis.settings.visual.analogAngle, 2*amvis.settings.visual.analogAngle];
+    var listOfdegrees = [-2 * amvis.settings.visual.analogAngle, -amvis.settings.visual.analogAngle, 0, amvis.settings.visual.analogAngle, 2 * amvis.settings.visual.analogAngle];
     var analog = finalDominantColor.schemeFromDegrees(listOfdegrees);
 
     // Convert to RGB Color Objects
@@ -258,19 +271,19 @@ amvis.enableWebcamStream = function(videoDomElement) {
             false
         );
 
-    var onStream = function( stream ) {
+    var onStream = function(stream) {
 
         try {
             /**
              * Chrome / Opera
              */
-            videoDomElement.src = ( window.URL || window.webkitURL ).createObjectURL( stream );
+            videoDomElement.src = ( window.URL || window.webkitURL ).createObjectURL(stream);
             amvis.localMediaStream = stream;
-        } catch( e ) {
+        } catch (e) {
             /**
              * Firefox
              */
-            if(videoDomElement.srcObject ) {
+            if (videoDomElement.srcObject) {
                 videoDomElement.srcObject = stream;
                 amvis.localMediaStream = stream;
             } else {
@@ -281,12 +294,12 @@ amvis.enableWebcamStream = function(videoDomElement) {
         }
     };
 
-    var onError = function( error ) {
+    var onError = function(error) {
         amvis.cameraFail(error);
     };
 
-    if(getUserMedia) {
-        getUserMedia.call( navigator, amvis.settings.advanced.webcamoptions, onStream, onError );
+    if (getUserMedia) {
+        getUserMedia.call(navigator, amvis.settings.advanced.webcamoptions, onStream, onError);
     }
 };
 
@@ -295,7 +308,7 @@ amvis.enableWebcamStream = function(videoDomElement) {
  *
  * @param  {object} e Error Description / Object
  */
-amvis.cameraFail = function (e) {
+amvis.cameraFail = function(e) {
     "use strict";
     console.log('Camera Fail / Not ready: ', e);
 };
