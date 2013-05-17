@@ -365,118 +365,196 @@ amvis.vis.programs.experimental = {
 
 /**
  * Simple Background Program
- * Analysiert die aktuellen Farben und gibt dazu passende Farbpaletten und -informationen aus
+ * Animation with the rendered colors of the video-input
  *
  * @author Sebastian Huber
  */
 amvis.vis.programs.simpleBackground = {
-    VIEW_ANGLE: 45,
+
+    /** Wrapper Object which holds all Data/Modeldata releated to the Program */
+    c: {},
+
+    init: function() {
+        "use strict";
+
+
+        ///////////////////////////////
+        // Basic Setup               //
+        ///////////////////////////////
+
+        var container = document.getElementById('VisContainer');
+        var self = amvis.vis.programs.simpleBackground;
+        var c = self.c;
+
+        c.renderer = new THREE.WebGLRenderer({
+            antialias : amvis.settings.advanced.antialias
+        });
+        c.renderer.setSize( window.innerWidth, window.innerHeight );
+        c.renderer.setClearColor(new THREE.Color().setHex('0x333333'));
+        container.appendChild(c.renderer.domElement);
+
+        // add Stats.js - https://github.com/mrdoob/stats.js
+        c.stats = new Stats();
+        c.stats.domElement.style.position   = 'absolute';
+        c.stats.domElement.style.bottom = '0px';
+        container.appendChild(c.stats.domElement );
+
+
+        ///////////////////////////////
+        // Scene Setup               //
+        ///////////////////////////////
+
+        c.scene = new THREE.Scene();
+        c.camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 1, 10000 );
+        c.camera.position.set(0,0,5);
+        c.scene.add(c.camera);
+        THREEx.WindowResize.bind(c.renderer, c.camera);
+
+
+        ///////////////////////////////
+        // Scene Lights            //
+        ///////////////////////////////
+
+        //var ambientLight = new THREE.AmbientLight(0xffffff );
+        //c.scene.add(ambientLight);
+
+        var directionalLight = new THREE.DirectionalLight(0xffffff );
+        directionalLight.position.set( Math.random(), Math.random(), Math.random() ).normalize();
+        c.scene.add(directionalLight);
+
+        //var pointLight = new THREE.PointLight(0xffffff );
+        //pointLight.position.set( Math.random()-0.5, Math.random()-0.5, Math.random()-0.5 )
+        //    .normalize().multiplyScalar(1.2);
+        //c.scene.add(pointLight);
+
+
+        ///////////////////////////////
+        // Scene Geometry            //
+        ///////////////////////////////
+
+        c.geometryGroup = new THREE.Object3D();
+
+        for (var i = 0; i < 7; i++) {
+
+            var size = Math.random()*5+2;
+            // var geometry    = new THREE.CubeGeometry(size, size, size);
+            var geometry = new THREE.OctahedronGeometry(size/2);
+            // var geometry = new THREE.SphereGeometry(size/2, 7, 7)
+            var material = new THREE.MeshLambertMaterial({
+                color: new THREE.Color().setHex('0x9D1515'),
+                opacity: 0.2,
+                transparent: true
+            });
+
+            var newMesh = new THREE.Mesh(geometry, material);
+
+            c.geometryGroup.add(newMesh);
+        }
+        c.scene.add(c.geometryGroup);
+
+
+        ///////////////////////////////
+        // Scene Particles           //
+        ///////////////////////////////
+
+        var TOTAL_PARTICLES = 100;
+        var TOTAL_MATERIALS = 5;
+        var TOTAL_PARTICLESYSTEMS = 50;
+
+        c.particleGroup = new THREE.Object3D();
+
+        var particleGeometry = new THREE.Geometry();
+
+        for (i = 0; i < TOTAL_PARTICLES; i++) {
+            var vector = new THREE.Vector3(
+                (Math.random() * 2 - 1) * 5,
+                (Math.random() * 2 - 1) * 5,
+                (Math.random() * 2 - 1) * 10
+            );
+            particleGeometry.vertices.push(vector);
+        }
+
+        var particleMaterial = new THREE.ParticleBasicMaterial({
+            //color: 0xFFFFFF,
+            size: 0.2,
+            opacity: 0.5,
+            transparent: true,
+            map: THREE.ImageUtils.loadTexture('img/particle3.png'),
+            blending: 2
+        });
+
+
+        for (i = 0; i < TOTAL_PARTICLESYSTEMS; i++) {
+            var particles = new THREE.ParticleSystem(particleGeometry, particleMaterial);
+            particles.rotation.y = i / (Math.PI * 2);
+            c.particleGroup.add(particles);
+        }
+
+        c.scene.add(c.particleGroup);
+
+
+
+        ///////////////////////////////
+        // Start Animation           //
+        ///////////////////////////////
+
+        amvis.vis.running = true;
+        this.animate();
+
+    },
+    animate: function() {
+        "use strict";
+
+        var self = amvis.vis.programs.simpleBackground;
+        var c = self.c;
+
+        // variable which is increase by Math.PI every seconds - usefull for animation
+        var PIseconds = Date.now() * Math.PI;
+
+        var geometryGroup = c.geometryGroup.children;
+
+        // animation of all objects
+        for(var i = 0; i < geometryGroup.length; i ++ ){
+            geometryGroup[i].rotation.y = PIseconds*0.0001 * (i % 2 ? 1 : -1);
+            geometryGroup[i].rotation.x = PIseconds*0.00005 * (i % 2 ? 1 : -1);
+            geometryGroup[i].rotation.x += (amvis.metaData.image.motionScore * 0.01) * (i % 2 ? 1 : -1);
+            geometryGroup[i].rotation.y += (amvis.metaData.image.motionScore * 0.01) * (i % 2 ? 1 : -1);
+            if (amvis.metaData.ready) {
+                geometryGroup[i].material.color = new THREE.Color(amvis.metaData.image.analog[3]);
+            }
+        }
+        if (amvis.metaData.ready) {
+            c.renderer.setClearColor(new THREE.Color(amvis.metaData.image.dominant));
+        }
+
+
+        // animation of all Particles
+        var particleSystems = c.particleGroup.children;
+        for(i = 0; i < particleSystems.length; i ++ ){
+            particleSystems[i].rotation.y = PIseconds*0.00001 * (i % 2 ? 1 : -1);
+            particleSystems[i].rotation.x = PIseconds*0.00001 * (i % 2 ? 1 : -1);
+            if (amvis.metaData.ready) {
+                particleSystems[i].material.color = new THREE.Color(amvis.metaData.image.analog[5]);
+            }
+        }
+
+        // Get new Animation Frame and render it
+        if (amvis.vis.running) {
+            requestAnimationFrame(self.animate);
+        }
+        c.renderer.render(c.scene, c.camera );
+        c.stats.update();
+
+    },
     stop: function() {
         "use strict";
+        var self = amvis.vis.programs.simpleBackground;
+
+        self.c = {}; // Clears Container Object with every Data in it.
+        amvis.vis.running = false;
+        cancelAnimationFrame(self.animate);
         $('#VisContainer').html('');
     }
-};
-
-amvis.vis.programs.simpleBackground.init = function() {
-    "use strict";
-    console.log('simpleBackground.init();');
-//    var self = amvis.vis.programs.simpleBackground;
-
-//    var metaDataObject = amvis.getMetaData();
-
-
-
-    // set the scene size
-    var WIDTH = 400,
-        HEIGHT = 300;
-
-    // set some camera attributes
-    var VIEW_ANGLE = 45,
-        ASPECT = WIDTH / HEIGHT,
-        NEAR = 0.1,
-        FAR = 10000;
-
-    // get the DOM element to attach to
-    // - assume we've got jQuery to hand
-    var $container = $('#VisContainer');
-
-    // create a WebGL renderer, camera
-    // and a scene
-    var renderer = new THREE.WebGLRenderer();
-    var camera = new THREE.PerspectiveCamera(  VIEW_ANGLE,
-                                    ASPECT,
-                                    NEAR,
-                                    FAR  );
-    var scene = new THREE.Scene();
-
-    // the camera starts at 0,0,0 so pull it back
-    camera.position.z = 300;
-
-    // start the renderer
-    renderer.setSize(WIDTH, HEIGHT);
-
-    // attach the render-supplied DOM element
-    $container.append(renderer.domElement);
-
-    // create the sphere's material
-    var sphereMaterial = new THREE.MeshLambertMaterial(
-    {
-        color: 0xCC0000
-    });
-
-    // set up the sphere vars
-    var radius = 50, segments = 16, rings = 16;
-
-    // create a new mesh with sphere geometry -
-    // we will cover the sphereMaterial next!
-    var sphere = new THREE.Mesh(
-       new THREE.SphereGeometry(radius, segments, rings),
-       sphereMaterial);
-
-    // add the sphere to the scene
-    scene.add(sphere);
-
-    // and the camera
-    scene.add(camera);
-
-    // create a point light
-    var pointLight = new THREE.PointLight( 0xFFFFFF );
-
-    // set its position
-    pointLight.position.x = 10;
-    pointLight.position.y = 50;
-    pointLight.position.z = 130;
-
-    // add to the scene
-    scene.add(pointLight);
-
-    // draw!
-    renderer.render(scene, camera);
-
-    /**
-     * Assume we have jQuery to hand
-     * and pull out from the DOM the
-     * two snippets of text for
-     * each of our shaders
-     */
-    var vShader = $('#vertexshader');
-    console.log(vShader.text());
-    var fShader = $('#fragmentshader');
-    var shaderMaterial =
-      new THREE.ShaderMaterial({
-        vertexShader:   vShader.text(),
-        fragmentShader: fShader.text()
-      });
-
-};
-
-amvis.vis.programs.simpleBackground.animate = function() {
-    "use strict";
-};
-
-amvis.vis.programs.simpleBackground.render = function() {
-    "use strict";
-
 };
 
 ///////////////////////

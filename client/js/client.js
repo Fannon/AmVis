@@ -54,6 +54,6 @@ jQuery(document).ready(function() {
 
 
     // Start Visualisation Program
-    amvis.vis.setProgram('experimental');
+    amvis.vis.setProgram('simpleBackground');
 
 });
