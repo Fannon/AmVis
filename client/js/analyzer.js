@@ -5,6 +5,9 @@
  * AmVis Analyzer
  * Takes Input Data (like Webcam) and analyzes it to generate useful MetaData for the Visualisation
  *
+ * TODO: Multithreading WebWorker
+ * TODO: WebCam CrossBrowser
+ *
  * @author Simon Heimler
  */
 
@@ -162,11 +165,15 @@ amvis.calculateImageData = function() {
     // Send array to quantize function which clusters values using median cut algorithm
     var cmap = MMCQ.quantize(pixelArray, 5);
     try {
-        // TODO: Three.JS crashes when no Palette is returned!
-        amvis.palette = cmap.palette();
+        var paletteTemp = cmap.palette();
+        if (paletteTemp && paletteTemp.length > 0) {
+            amvis.palette = paletteTemp;
+        } else {
+            console.log('Error in Quantizer!');
+        }
     } catch (e) {
         // Ignore broken Palette (takes last one)
-        console.log('CATCH');
+        console.log('Quantizer Error CATCH');
     }
 
 

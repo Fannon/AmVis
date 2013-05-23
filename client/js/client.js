@@ -38,6 +38,8 @@ jQuery(document).ready(function() {
     amvis.enableWebcamStream(amvis.video);
 
 
+    // TODO: Webworker
+
     // Calculate Image Data if Webcam is available
     setInterval(function(){
         if (amvis.localMediaStream) {
