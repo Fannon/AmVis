@@ -50,10 +50,10 @@ amvis.metaData = {
             ]
         },
         palette: [],
+        dominantSet: undefined,
         analog: [],
         motionScore: 0,
         motionLevel: undefined
-
     }
 };
 
@@ -249,6 +249,8 @@ amvis.calculateImageData = function() {
     }
 
     amvis.metaData.ready = true;
+
+    amvis.interpretImageData();
 
 };
 

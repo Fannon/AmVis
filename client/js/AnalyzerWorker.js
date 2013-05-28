@@ -2,6 +2,6 @@
 /* jshint jquery:true, devel:true */
 
 
-var AnalyzerWorker = function() {
+var analyzerWorker = function() {
   // TODO
 };

@@ -44,7 +44,7 @@ jQuery(document).ready(function() {
     setInterval(function(){
         if (amvis.localMediaStream) {
             amvis.calculateImageData(); // Async!
-//            amvis.interpretImageData();
+            //amvis.interpretImageData();
         }
     }, amvis.settings.visual.analyzerInterval);
 
@@ -57,6 +57,6 @@ jQuery(document).ready(function() {
 
 
     // Start Visualisation Program
-    amvis.vis.setProgram('simpleBackground');
+    amvis.vis.setProgram('colorpalette');
 
 });
