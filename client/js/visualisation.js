@@ -67,7 +67,7 @@ amvis.vis.setImageOverlay = function(imageName) {
     "use strict";
     var img = $('<img id="overlayImage">');
     img.attr('src', 'img/' + imageName);
-    $('#imageOveray').html(img);
+    $('#LogoContainer').html(img);
 };
 
 /**
@@ -110,7 +110,9 @@ amvis.vis.programs.colorpalette = {
                 var imageData = amvis.imageData;
                 var html = '<div id="colordebug">';
 
-                html += '<div style="background-color: #000">Motion Score: ' + amvis.metaData.image.motionScore + '</div><br>';
+                html += '<div style="background-color: #000">Motion Score: ' + amvis.metaData.image.motionScore + '</div>';
+                html += '<div style="background-color: #000">MotionLevel: ' + amvis.metaData.image.motionLevel + '</div>';
+                html += '<div style="background-color: #000">Dominant Set: ' + amvis.metaData.image.dominantSet + '</div><br>';
 
                 html += '<div style="background-color: ' + imageData.dominant.toCSS() + '">DOMINANT CURRENT</div><br>';
 
@@ -125,6 +127,8 @@ amvis.vis.programs.colorpalette = {
                 for (j = 0; j < imageData.analog.length; j++) {
                     html += '<div style="background-color: ' + amvis.metaData.image.analog[j] + '">ANALOG</div>';
                 }
+
+
 
                 html += '<br></div>';
 
@@ -381,6 +385,8 @@ amvis.vis.programs.simpleBackground = {
         ///////////////////////////////
         // Basic Setup               //
         ///////////////////////////////
+
+        amvis.vis.setImageOverlay('AmVisLogo1.png');
 
         var container = document.getElementById('VisContainer');
         var self = amvis.vis.programs.simpleBackground;

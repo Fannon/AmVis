@@ -15,7 +15,7 @@ amvis.interpretImageData = function() {
     // Set Image Motion Level     //
     ////////////////////////////////
 
-    var ms = amvis.metaData.image.motionScore;
+    var ms = amvis.imageData.motionScore;
 
     if (ms >= 15) {
         amvis.metaData.image.motionLevel = 'fast';
@@ -32,7 +32,7 @@ amvis.interpretImageData = function() {
     var dominantHsl = amvis.imageData.dominant.toHSV();
     var hue = dominantHsl.hue;
 
-    if (dominantHsl.saturation < 0.3) {
+    if (dominantHsl.saturation < 0.2) {
         amvis.metaData.image.dominantSet = 'grey';
     } else if (hue <= 30){
         amvis.metaData.image.dominantSet = 'red';

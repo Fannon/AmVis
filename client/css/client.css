@@ -16,9 +16,6 @@ body {
 #colordebug div {
     padding: 3px 0;
     margin: 1px 0;
-    -moz-border-radius: 3px;
-    -webkit-border-radius: 3px;
-    -khtml-border-radius: 3px;
     border-radius: 3px;
 }
 
@@ -34,6 +31,9 @@ body {
     top: 0;
     width: 100%;
 }
+#LogoContainer img {
+    height: 100%;
+}
 
 #HtmlContainer {
     position: absolute;
@@ -41,4 +41,5 @@ body {
     width: 100%;
     padding: 10px;
     text-align: center;
+    color: #FFF;
 }
