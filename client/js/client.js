@@ -7,8 +7,8 @@
  * Uses Webcam to analyse current Colors of the envirionment
  * and generates matching WebGL Visualisations
  *
- * Uses https://gist.github.com/nrabinowitz/1104622 for Color Quantizing
- * Uses https://github.com/brehaut/color-js for Color Management
+ * Uses {@link https://gist.github.com/nrabinowitz/1104622) for Color Quantizing
+ * Uses {@link https://github.com/brehaut/color-js) for Color Management
  *
  * @author Simon Heimler
  * @author Sebastian Huber
@@ -43,7 +43,8 @@ jQuery(document).ready(function() {
     // Calculate Image Data if Webcam is available
     setInterval(function(){
         if (amvis.localMediaStream) {
-            amvis.calculateImageData();
+            amvis.calculateImageData(); // Async!
+//            amvis.interpretImageData();
         }
     }, amvis.settings.visual.analyzerInterval);
 

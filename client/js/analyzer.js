@@ -51,7 +51,9 @@ amvis.metaData = {
         },
         palette: [],
         analog: [],
-        motionScore: 0
+        motionScore: 0,
+        motionLevel: undefined
+
     }
 };
 
