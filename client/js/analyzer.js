@@ -58,14 +58,14 @@ amvis.metaData = {
 
 amvis.imageData = {};
 
-/////////////////////////
-// Processing Stream   //
-/////////////////////////
+
+///////////////////////
+// Calculate Data    //
+///////////////////////
 
 /**
  * Calculates and interpolates Metadata from media input
- *
- * TODO: Interpolation between Frames!
+ * (Uses calculated ImageData)
  */
 amvis.calculateMetaData = function() {
     "use strict";
@@ -96,20 +96,23 @@ amvis.calculateMetaData = function() {
 
 };
 
-
-///////////////////////
-// Calculate Data    //
-///////////////////////
-
 /**
  * Calculates the imageData Object which contains Color Informations about the current Frame
  *
  * Uses quantize.js Copyright 2008 Nick Rabinowitz.
- *
- * @return {object}                           Object with Color Informations
  */
 amvis.calculateImageData = function() {
     "use strict";
+
+    ////////////////////////////////
+    // Variables                  //
+    ////////////////////////////////
+
+    var dominantColor;
+    var pixelArray = [];
+    var motionScore = 0;
+    amvis.imageData.palette = [];
+
 
     ////////////////////////////////
     // Get Pixeldata              //
@@ -121,20 +124,21 @@ amvis.calculateImageData = function() {
     // Get Image Metadata
     var pixels = amvis.ctx.getImageData(0, 0, amvis.cw, amvis.ch).data; // Gets Pixeldata from Image
 
+    // If there is no pixelArchive yet, fill it with current PixelArray
     if (!amvis.pixelArchive) {
         amvis.pixelArchive = pixels;
     }
 
-    amvis.imageData.palette = [];
-    var pixelArray = [];
-    var dominantColor;
-    var motionScore = 0;
+    ////////////////////////////////
+    // Pre-Calculations           //
+    ////////////////////////////////
 
     // Looping over Pixel Array, takes 4 steps (rgba) with each iteration
     // while loop with i and n cached: http://jsperf.com/fors-vs-while/58
+
     var i = 0;
-    var n = pixels.length;
-    while(i < n) {
+
+    while(i < pixels.length) {
 
         var r = pixels[i];
         var g = pixels[i + 1];
@@ -177,41 +181,69 @@ amvis.calculateImageData = function() {
     }
 
 
+    ////////////////////////////////
+    // Analyzer Worker            //
+    // Deactivated                //
+    ////////////////////////////////
+
+//    var analyzerWorker = new Worker('js/analyzerWorker.js');
+
+    /**
+     * Register 'On Worker done' Event Listener
+     * @event
+     */
+//    analyzerWorker.addEventListener('message', function(e) {
+//
+//    }, false);
+
+    /**
+     * Send Job to Worker
+     */
+//    analyzerWorker.postMessage({
+//        pixels: pixels
+//    });
+
+
+    ////////////////////////////////
+    // Process Data from Worker   //
+    ////////////////////////////////
 
     // Convert RGB Arrays to Color Objects
-    var palette = amvis.palette;
-    amvis.imageData.palette[0] = Color(palette[0]);
-    amvis.imageData.palette[1] = Color(palette[1]);
-    amvis.imageData.palette[2] = Color(palette[2]);
-    amvis.imageData.palette[3] = Color(palette[3]);
-    amvis.imageData.palette[4] = Color(palette[4]);
+    amvis.imageData.palette[0] = new Color(amvis.palette[0]);
+    amvis.imageData.palette[1] = new Color(amvis.palette[1]);
+    amvis.imageData.palette[2] = new Color(amvis.palette[2]);
+    amvis.imageData.palette[3] = new Color(amvis.palette[3]);
+    amvis.imageData.palette[4] = new Color(amvis.palette[4]);
 
 
-    ////////////////////////////////
-    // Calculate Dominant Color   //
-    ////////////////////////////////
+    /////////////////////////////////////
+    // Calculate Dominant Color        //
+    /////////////////////////////////////
 
-    dominantColor = palette[0];
+    dominantColor = amvis.palette[0];
 
     // Using a "Diff Score" to guess which Color is most interesting
     // Also this takes care of too greyish colors that produce very boring palettes
     if (amvis.settings.minColorfulness !== 0) {
-        for (var j = 0; j < palette.length; j++) {
+        for (var j = 0; j < amvis.palette.length; j++) {
 
             var diff = 0;
-            diff += Math.abs(palette[j][0] - palette[j][1]);
-            diff += Math.abs(palette[j][0] - palette[j][2]);
-            diff += Math.abs(palette[j][1] - palette[j][2]);
+            diff += Math.abs(amvis.palette[j][0] - amvis.palette[j][1]);
+            diff += Math.abs(amvis.palette[j][0] - amvis.palette[j][2]);
+            diff += Math.abs(amvis.palette[j][1] - amvis.palette[j][2]);
 
             if (diff > amvis.settings.minColorfulness) {
-                dominantColor = palette[j];
+                dominantColor = amvis.palette[j];
                 break;
             }
         }
     }
 
-    // PostProcessing Color
-    var finalDominantColor = Color(dominantColor);
+    /////////////////////////////////////
+    // PostProcessing Dominant Color   //
+    /////////////////////////////////////
+
+    var finalDominantColor = new Color(dominantColor);
 
     // Add / Remove Saturation if setting not 0
     if (amvis.settings.visual.saturation > 0) {
@@ -229,9 +261,9 @@ amvis.calculateImageData = function() {
     amvis.imageData.dominant = finalDominantColor;
 
 
-    ////////////////////////////////
-    // Additional Color Palettes  //
-    ////////////////////////////////
+    /////////////////////////////////////
+    // Additional Color Palettes       //
+    /////////////////////////////////////
 
     var listOfdegrees = [-2 * amvis.settings.visual.analogAngle, -amvis.settings.visual.analogAngle, 0, amvis.settings.visual.analogAngle, 2 * amvis.settings.visual.analogAngle];
     var analog = finalDominantColor.schemeFromDegrees(listOfdegrees);
@@ -262,7 +294,7 @@ amvis.calculateImageData = function() {
  * Cross Browser Shim for HTML5 Webcam Input
  * http://wolframhempel.com/2012/11/27/getusermedia-cross-browser-shim/
  *
- * TODO: Works just in Google Chrome!
+ * Works just in Google Chrome!
  *
  * @param {Object}      videoDomElement DOM Element of Video
  * @param {Function}    callback        Callback Function, will be executed when Webcam ready
@@ -286,25 +318,13 @@ amvis.enableWebcamStream = function(videoDomElement, callback) {
         }
 
         try {
-            /**
-             * Chrome / Opera
-             */
             videoDomElement.src = ( window.URL || window.webkitURL ).createObjectURL(stream);
             amvis.localMediaStream = stream;
+            callback();
         } catch (e) {
-            /**
-             * Firefox
-             */
-            if (videoDomElement.srcObject) {
-                videoDomElement.srcObject = stream;
-                amvis.localMediaStream = stream;
-            } else {
-                videoDomElement.mozSrcObject = stream;
-                amvis.localMediaStream = stream;
-            }
-            videoDomElement.play();
+            onError('This Browser is not supported, Sorry!');
         }
-        callback();
+
     };
 
     var onError = function(error) {
@@ -328,6 +348,7 @@ amvis.cameraFail = function(e) {
     "use strict";
     console.log('Camera Fail / Not ready: ', e);
 };
+
 /**
  * Interpolates Colors
  *
@@ -344,7 +365,7 @@ amvis.interpolateColor = function(currentColor, newColor) {
 };
 
 /**
- * Interpolates the MotionScore
+ * Interpolates MotionScore
  *
  * @param currentMotionScore
  * @param newMotionScore

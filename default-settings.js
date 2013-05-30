@@ -7,7 +7,8 @@ amvis.settings = {};
 
 /** Main Settings */
 amvis.settings.main = {
-    serverUrl: '/' // Default: '/' (Own Server)  Use absolute URL for Remote Server Control
+    serverUrl: '/', // Default: '/' (Own Server)  Use absolute URL for Remote Server Control
+    debug: true // Displays Frame Rate etc.
 };
 
 /** Available Programs */

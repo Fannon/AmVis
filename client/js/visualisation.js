@@ -175,11 +175,13 @@ amvis.vis.programs.experimental = {
         c.renderer.setClearColor(new THREE.Color().setHex('0x2A2090'));
         container.appendChild(c.renderer.domElement);
 
-        // add Stats.js - https://github.com/mrdoob/stats.js
-        c.stats = new Stats();
-        c.stats.domElement.style.position	= 'absolute';
-        c.stats.domElement.style.bottom	= '0px';
-        container.appendChild(c.stats.domElement );
+        if (amvis.settings.main.debug) {
+            // Stats.js - https://github.com/mrdoob/stats.js
+            c.stats = new Stats();
+            c.stats.domElement.style.position	= 'absolute';
+            c.stats.domElement.style.bottom	= '0px';
+            container.appendChild(c.stats.domElement );
+        }
 
 
         ///////////////////////////////
@@ -352,7 +354,10 @@ amvis.vis.programs.experimental = {
             requestAnimationFrame(self.animate);
         }
         c.renderer.render(c.scene, c.camera );
-        c.stats.update();
+
+        if (amvis.settings.main.debug) {
+            c.stats.update();
+        }
 
     },
     stop: function() {
@@ -399,12 +404,13 @@ amvis.vis.programs.simpleBackground = {
         c.renderer.setClearColor(new THREE.Color().setHex('0x333333'));
         container.appendChild(c.renderer.domElement);
 
-        // add Stats.js - https://github.com/mrdoob/stats.js
-        c.stats = new Stats();
-        c.stats.domElement.style.position   = 'absolute';
-        c.stats.domElement.style.bottom = '0px';
-        container.appendChild(c.stats.domElement );
-
+        if (amvis.settings.main.debug) {
+            // Stats.js - https://github.com/mrdoob/stats.js
+            c.stats = new Stats();
+            c.stats.domElement.style.position   = 'absolute';
+            c.stats.domElement.style.bottom = '0px';
+            container.appendChild(c.stats.domElement );
+        }
 
         ///////////////////////////////
         // Scene Setup               //
@@ -549,7 +555,10 @@ amvis.vis.programs.simpleBackground = {
             requestAnimationFrame(self.animate);
         }
         c.renderer.render(c.scene, c.camera );
-        c.stats.update();
+
+        if (amvis.settings.main.debug) {
+            c.stats.update();
+        }
 
     },
     stop: function() {
