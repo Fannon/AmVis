@@ -97,7 +97,7 @@ amvis.vis.programs.colorpalette = {
     init: function() {
         "use strict";
         // Show Webcam Input Video
-        $('#video').show();
+        $('#canvas').show();
 
         amvis.vis.programs.colorpalette.animate();
     },
@@ -110,9 +110,9 @@ amvis.vis.programs.colorpalette = {
                 var imageData = amvis.imageData;
                 var html = '<div id="colordebug">';
 
-                html += '<div style="background-color: #000">Motion Score: ' + amvis.metaData.image.motionScore + '</div>';
-                html += '<div style="background-color: #000">MotionLevel: ' + amvis.metaData.image.motionLevel + '</div>';
-                html += '<div style="background-color: #000">Dominant Set: ' + amvis.metaData.image.dominantSet + '</div><br>';
+                html += '<div style="background-color: #333">Motion Score: ' + amvis.metaData.image.motionScore + '</div>';
+                html += '<div style="background-color: #333">MotionLevel: ' + amvis.metaData.image.motionLevel + '</div>';
+                html += '<div style="background-color: #333">Dominant Set: ' + amvis.metaData.image.dominantSet + '</div><br>';
 
                 html += '<div style="background-color: ' + imageData.dominant.toCSS() + '">DOMINANT CURRENT</div><br>';
 

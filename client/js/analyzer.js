@@ -6,7 +6,6 @@
  * Takes Input Data (like Webcam) and analyzes it to generate useful MetaData for the Visualisation
  *
  * TODO: Multithreading WebWorker
- * TODO: WebCam CrossBrowser
  *
  * @author Simon Heimler
  */
@@ -25,7 +24,7 @@ amvis.ch = amvis.canvas.height;
 amvis.totalPixels = amvis.cw * amvis.ch;
 
 amvis.connected = false;
-amvis.pixelArchive = null;
+amvis.pixelArchive = [[0, 0, 0]];
 amvis.remoteInformations = {};
 amvis.palette = [];
 
@@ -165,18 +164,18 @@ amvis.calculateImageData = function() {
     ////////////////////////////////
 
     // Send array to quantize function which clusters values using median cut algorithm
-    var cmap = MMCQ.quantize(pixelArray, 5);
-    try {
+    if (pixelArray.length > 0) {
+        var cmap = MMCQ.quantize(pixelArray, 5);
         var paletteTemp = cmap.palette();
         if (paletteTemp && paletteTemp.length > 0) {
             amvis.palette = paletteTemp;
         } else {
             console.log('Error in Quantizer!');
         }
-    } catch (e) {
-        // Ignore broken Palette (takes last one)
-        console.log('Quantizer Error CATCH');
+    } else {
+        console.log('No Pixeldata left to analyze');
     }
+
 
 
     // Convert RGB Arrays to Color Objects
@@ -263,26 +262,28 @@ amvis.calculateImageData = function() {
  * Cross Browser Shim for HTML5 Webcam Input
  * http://wolframhempel.com/2012/11/27/getusermedia-cross-browser-shim/
  *
- * TODO: Not working very well
+ * TODO: Works just in Google Chrome!
  *
- * @param  {[type]} videoDomElement [description]
- * @return {[type]}                 [description]
+ * @param {Object}      videoDomElement DOM Element of Video
+ * @param {Function}    callback        Callback Function, will be executed when Webcam ready
  */
-amvis.enableWebcamStream = function(videoDomElement) {
+amvis.enableWebcamStream = function(videoDomElement, callback) {
     "use strict";
 
     videoDomElement.autoplay = true;
 
-    var getUserMedia = (
-        navigator.getUserMedia ||
-            navigator.webkitGetUserMedia ||
-            navigator.mozGetUserMedia ||
-            navigator.oGetUserMedia ||
-            navigator.msieGetUserMedia ||
-            false
-        );
+    navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+    window.URL = window.URL || window.webkitURL || window.mozURL || window.msURL;
+
 
     var onStream = function(stream) {
+
+        // Set the source of the video element with the stream from the camera
+        if (stream.mozSrcObject !== undefined) {
+            stream.mozSrcObject = stream;
+        } else {
+            amvis.video.src = (window.URL && window.URL.createObjectURL(stream)) || stream;
+        }
 
         try {
             /**
@@ -303,15 +304,19 @@ amvis.enableWebcamStream = function(videoDomElement) {
             }
             videoDomElement.play();
         }
+        callback();
     };
 
     var onError = function(error) {
         amvis.cameraFail(error);
     };
 
-    if (getUserMedia) {
-        getUserMedia.call(navigator, amvis.settings.advanced.webcamoptions, onStream, onError);
+    if (navigator.getUserMedia) {
+        navigator.getUserMedia({video: true}, onStream, onError);
+    } else {
+        onError('Native web camera streaming (getUserMedia) not supported in this browser.');
     }
+
 };
 
 /**

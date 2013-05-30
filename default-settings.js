@@ -17,6 +17,8 @@ amvis.settings.programs = [
     'experimental'
 ];
 
+amvis.settings.defaultProgram = 'colorpalette';
+
 /** Visual Settings */
 amvis.settings.visual = {
     analyzerInterval: 500,  // in ms
