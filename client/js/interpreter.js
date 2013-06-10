@@ -5,7 +5,6 @@
  * AmVis Interpreter
  * Takes the analyzed Metadata and interprets it
  *
- *
  * @author Sebastian Huber
  */
 amvis.interpretImageData = function() {
@@ -48,6 +47,39 @@ amvis.interpretImageData = function() {
         amvis.metaData.image.dominantSet = 'magenta';
     } else if (hue <= 360) {
         amvis.metaData.image.dominantSet = 'red';
+    }
+
+};
+
+/**
+ * Calculates and interpolates Metadata from media input
+ * (Uses calculated ImageData)
+ */
+amvis.calculateMetaData = function() {
+    "use strict";
+
+    // Calculate Image Metadata
+    if (amvis.metaData.ready) {
+
+        // Interpolate Dominant Color
+        amvis.interpolateColor(amvis.metaData.image.raw.dominant, amvis.imageData.dominant);
+        amvis.metaData.image.dominant = amvis.rgbToString(amvis.metaData.image.raw.dominant);
+
+        // Interpolate Palette
+        for (var i = 0; i < amvis.imageData.palette.length; i++) {
+            amvis.interpolateColor(amvis.metaData.image.raw.palette[i], amvis.imageData.palette[i]);
+            amvis.metaData.image.palette[i] = amvis.rgbToString(amvis.metaData.image.raw.palette[i]);
+        }
+
+        // Interpolate Analog Palette
+        for (var j = 0; j < amvis.imageData.analog.length; j++) {
+            amvis.interpolateColor(amvis.metaData.image.raw.analog[j], amvis.imageData.analog[j]);
+            amvis.metaData.image.analog[j] = amvis.rgbToString(amvis.metaData.image.raw.analog[j]);
+        }
+
+        // Interpolate MotionScore
+        amvis.metaData.image.motionScore = amvis.interpolateMotionScore(amvis.metaData.image.motionScore, amvis.imageData.motion_score);
+
     }
 
 };
