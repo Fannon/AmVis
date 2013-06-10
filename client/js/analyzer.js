@@ -24,9 +24,15 @@ amvis.ch = amvis.canvas.height;
 amvis.totalPixels = amvis.cw * amvis.ch;
 
 amvis.connected = false;
-amvis.pixelArchive = [[0, 0, 0]];
+amvis.pixelArchive = false;
 amvis.remoteInformations = {};
-amvis.palette = [];
+amvis.palette = [
+    [0, 0, 0],
+    [0, 0, 0],
+    [0, 0, 0],
+    [0, 0, 0],
+    [0, 0, 0]
+];
 
 amvis.metaData = {
     ready: false,
@@ -69,7 +75,7 @@ amvis.imageData = {};
  *
  * Uses quantize.js Copyright 2008 Nick Rabinowitz.
  */
-amvis.calculateImageData = function() {
+amvis.calculateImageData = function(passThrough) {
     "use strict";
 
     ////////////////////////////////
@@ -113,9 +119,11 @@ amvis.calculateImageData = function() {
         var b = pixels[i + 2];
         // Alpha (pixels[i+3]) is ignored
 
-        // Put every interesting Pixel into the pixelArray which will be quantized for calculating the Color Palette
-        if (!(r > amvis.settings.visual.maxBrightness && g > amvis.settings.visual.maxBrightness && b > amvis.settings.visual.maxBrightness) &&
+        if (passThrough) {
+            pixelArray.push([r, g, b]);
+        } else if (!(r > amvis.settings.visual.maxBrightness && g > amvis.settings.visual.maxBrightness && b > amvis.settings.visual.maxBrightness) &&
             r > amvis.settings.visual.minBrightness && g > amvis.settings.visual.minBrightness && b > amvis.settings.visual.minBrightness) {
+            // Put every interesting Pixel into the pixelArray which will be quantized for calculating the Color Palette
             pixelArray.push([r, g, b]);
         }
 
@@ -146,6 +154,11 @@ amvis.calculateImageData = function() {
         }
     } else {
         console.log('No Pixeldata left to analyze');
+        if (!amvis.pixelArchive) {
+            console.log('Running again with PassTrough Mode');
+            amvis.calculateImageData(true);
+            return false;
+        }
     }
 
 
