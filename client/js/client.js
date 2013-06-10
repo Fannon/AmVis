@@ -36,7 +36,7 @@ jQuery(document).ready(function() {
 
     var msg = '<h1>Welcome to AmVis!</h1><h2>Waiting for Webcam Stream...</h2>';
     msg += '<p>(This program works just in a recent version of Google Chrome)</p>';
-    amvis.vis.setHtmlOverlay();
+    amvis.vis.setHtmlOverlay(msg);
 
     // Get Webcam Stream starting
     amvis.enableWebcamStream(amvis.video, function() {

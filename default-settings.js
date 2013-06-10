@@ -8,17 +8,16 @@ amvis.settings = {};
 /** Main Settings */
 amvis.settings.main = {
     serverUrl: '/', // Default: '/' (Own Server)  Use absolute URL for Remote Server Control
-    debug: true // Displays Frame Rate etc.
+    debug: false // Displays Frame Rate etc.
 };
 
 /** Available Programs */
 amvis.settings.programs = [
     'simpleBackground',
-    'colorpalette',
-    'experimental'
+    'colorpalette'
 ];
 
-amvis.settings.defaultProgram = 'colorpalette';
+amvis.settings.defaultProgram = 'simpleBackground';
 
 /** Visual Settings */
 amvis.settings.visual = {
