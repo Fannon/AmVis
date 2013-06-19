@@ -182,7 +182,7 @@ amvis.vis.programs.simpleBackground = {
             antialias : amvis.settings.advanced.antialias
         });
         c.renderer.setSize( window.innerWidth, window.innerHeight );
-        c.renderer.setClearColor(new THREE.Color().setHex('0x333333'));
+        c.renderer.setClearColor(new THREE.Color().setHex('0x000000'));
         container.appendChild(c.renderer.domElement);
 
         if (amvis.settings.main.debug) {
@@ -234,7 +234,7 @@ amvis.vis.programs.simpleBackground = {
             var geometry = new THREE.OctahedronGeometry(size/2);
             // var geometry = new THREE.SphereGeometry(size/2, 7, 7)
             var material = new THREE.MeshLambertMaterial({
-                color: new THREE.Color().setHex('0x9D1515'),
+                color: new THREE.Color().setHex('0x000000'),
                 opacity: 0.2,
                 transparent: true
             });
@@ -316,7 +316,7 @@ amvis.vis.programs.simpleBackground = {
                 geometryGroup[i].material.color = new THREE.Color(amvis.metaData.image.analog[3]);
             }
         }
-        if (amvis.metaData.ready) {
+        if (amvis.metaData.ready && amvis.metaData) {
             c.renderer.setClearColor(new THREE.Color(amvis.metaData.image.dominant));
         }
 

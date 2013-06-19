@@ -216,7 +216,7 @@ amvis.calculateImageData = function(passThrough) {
     }
 
     amvis.remoteInformations.dominantColor = finalDominantColor.toCSS();
-    amvis.imageData.dominant = finalDominantColor;
+    amvis.imageData.dominant = finalDominantColor.toRGB();
 
 
     /////////////////////////////////////
