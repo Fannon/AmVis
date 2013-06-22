@@ -310,8 +310,10 @@ amvis.vis.programs.simpleBackground = {
         for(var i = 0; i < geometryGroup.length; i ++ ){
             geometryGroup[i].rotation.y = PIseconds*0.0001 * (i % 2 ? 1 : -1);
             geometryGroup[i].rotation.x = PIseconds*0.00005 * (i % 2 ? 1 : -1);
-            geometryGroup[i].rotation.x += (amvis.metaData.image.motionScore * 0.01) * (i % 2 ? 1 : -1);
-            geometryGroup[i].rotation.y += (amvis.metaData.image.motionScore * 0.01) * (i % 2 ? 1 : -1);
+//            geometryGroup[i].rotation.x += (amvis.metaData.image.motionScore * 0.01) * (i % 2 ? 1 : -1);
+//            geometryGroup[i].rotation.y += (amvis.metaData.image.motionScore * 0.01) * (i % 2 ? 1 : -1);
+            geometryGroup[i].rotation.x += (i % 2 ? 1 : -1);
+            geometryGroup[i].rotation.y += (i % 2 ? 1 : -1);
             if (amvis.metaData.ready) {
                 geometryGroup[i].material.color = new THREE.Color(amvis.metaData.image.analog[3]);
             }
